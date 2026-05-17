@@ -113,9 +113,9 @@ void BPF_STRUCT_OPS(viral_product_analytics_enqueue, struct task_struct *p, u64 
 void BPF_STRUCT_OPS(viral_product_analytics_dispatch, s32 cpu, struct task_struct *prev)
 {
 	/* Priority dispatch: always try large analytics first */
-	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ)) {
+	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ, 0)) {
 		/* If no large analytics, dispatch small analytics and other tasks */
-		scx_bpf_dsq_move_to_local(SMALL_DSQ);
+		scx_bpf_dsq_move_to_local(SMALL_DSQ, 0);
 	}
 }
 

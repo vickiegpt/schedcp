@@ -82,9 +82,9 @@ void BPF_STRUCT_OPS(file_checksum_enqueue, struct task_struct *p, u64 enq_flags)
 void BPF_STRUCT_OPS(file_checksum_dispatch, s32 cpu, struct task_struct *prev)
 {
 	/* Priority dispatch: always try large file process first */
-	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ)) {
+	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ, 0)) {
 		/* If no large file process, dispatch small file processes */
-		scx_bpf_dsq_move_to_local(SMALL_DSQ);
+		scx_bpf_dsq_move_to_local(SMALL_DSQ, 0);
 	}
 }
 

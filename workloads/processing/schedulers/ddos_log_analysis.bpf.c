@@ -112,9 +112,9 @@ void BPF_STRUCT_OPS(ddos_log_analysis_enqueue, struct task_struct *p, u64 enq_fl
 void BPF_STRUCT_OPS(ddos_log_analysis_dispatch, s32 cpu, struct task_struct *prev)
 {
 	/* Priority dispatch: always try spike analyzer first */
-	if (!scx_bpf_dsq_move_to_local(SPIKE_DSQ)) {
+	if (!scx_bpf_dsq_move_to_local(SPIKE_DSQ, 0)) {
 		/* If no spike analyzer, dispatch normal tasks */
-		scx_bpf_dsq_move_to_local(NORMAL_DSQ);
+		scx_bpf_dsq_move_to_local(NORMAL_DSQ, 0);
 	}
 }
 

@@ -104,11 +104,11 @@ void BPF_STRUCT_OPS(compression_enqueue, struct task_struct *p, u64 enq_flags)
 void BPF_STRUCT_OPS(compression_dispatch, s32 cpu, struct task_struct *prev)
 {
 	/* Priority dispatch: always try large compression first */
-	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ)) {
+	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ, 0)) {
 		/* If no large tasks, dispatch small compression tasks */
-		if (!scx_bpf_dsq_move_to_local(SMALL_DSQ)) {
+		if (!scx_bpf_dsq_move_to_local(SMALL_DSQ, 0)) {
 			/* Finally, dispatch other tasks */
-			scx_bpf_dsq_move_to_local(SCX_DSQ_GLOBAL);
+			scx_bpf_dsq_move_to_local(SCX_DSQ_GLOBAL, 0);
 		}
 	}
 }

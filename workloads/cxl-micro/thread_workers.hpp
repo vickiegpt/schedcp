@@ -92,6 +92,17 @@ inline pid_t gettid() {
   return syscall(SYS_gettid); 
 }
 
+inline void warn_numa_bind_failure_once(std::atomic<bool> &warned,
+                                        const char *worker_type,
+                                        int thread_id, int numa_node) {
+  if (!warned.exchange(true)) {
+    std::cerr << "Warning: Failed to bind " << worker_type << " thread "
+              << thread_id << " to NUMA node " << numa_node << ": "
+              << strerror(errno) << " (further failures suppressed)"
+              << std::endl;
+  }
+}
+
 // Memory-based reader thread
 inline void reader_thread(void *buffer, size_t buffer_size, size_t block_size,
                    std::atomic<bool> &stop_flag, ThreadStats &stats,
@@ -108,10 +119,9 @@ inline void reader_thread(void *buffer, size_t buffer_size, size_t block_size,
   stats.thread_id = thread_id;
 
   if (enable_numa) {
+    static std::atomic<bool> warned(false);
     if (numa_run_on_node(numa_node) != 0) {
-      std::cerr << "Warning: Failed to bind reader thread " << thread_id
-                << " to NUMA node " << numa_node << ": " << strerror(errno)
-                << std::endl;
+      warn_numa_bind_failure_once(warned, "reader", thread_id, numa_node);
     }
   }
 
@@ -162,10 +172,9 @@ inline void writer_thread(void *buffer, size_t buffer_size, size_t block_size,
   stats.thread_id = thread_id;
 
   if (enable_numa) {
+    static std::atomic<bool> warned(false);
     if (numa_run_on_node(numa_node) != 0) {
-      std::cerr << "Warning: Failed to bind writer thread " << thread_id
-                << " to NUMA node " << numa_node << ": " << strerror(errno)
-                << std::endl;
+      warn_numa_bind_failure_once(warned, "writer", thread_id, numa_node);
     }
   }
 
@@ -216,10 +225,9 @@ inline void device_reader_thread(int fd, size_t file_size, size_t block_size,
   stats.thread_id = thread_id;
 
   if (enable_numa) {
+    static std::atomic<bool> warned(false);
     if (numa_run_on_node(numa_node) != 0) {
-      std::cerr << "Warning: Failed to bind device reader thread " << thread_id
-                << " to NUMA node " << numa_node << ": " << strerror(errno)
-                << std::endl;
+      warn_numa_bind_failure_once(warned, "device reader", thread_id, numa_node);
     }
   }
 
@@ -266,10 +274,9 @@ inline void device_writer_thread(int fd, size_t file_size, size_t block_size,
   stats.thread_id = thread_id;
 
   if (enable_numa) {
+    static std::atomic<bool> warned(false);
     if (numa_run_on_node(numa_node) != 0) {
-      std::cerr << "Warning: Failed to bind device writer thread " << thread_id
-                << " to NUMA node " << numa_node << ": " << strerror(errno)
-                << std::endl;
+      warn_numa_bind_failure_once(warned, "device writer", thread_id, numa_node);
     }
   }
 
@@ -315,10 +322,9 @@ inline void mmap_reader_thread(void *mapped_area, size_t file_size, size_t block
   stats.thread_id = thread_id;
 
   if (enable_numa) {
+    static std::atomic<bool> warned(false);
     if (numa_run_on_node(numa_node) != 0) {
-      std::cerr << "Warning: Failed to bind MMAP reader thread " << thread_id
-                << " to NUMA node " << numa_node << ": " << strerror(errno)
-                << std::endl;
+      warn_numa_bind_failure_once(warned, "MMAP reader", thread_id, numa_node);
     }
   }
 
@@ -359,10 +365,9 @@ inline void mmap_writer_thread(void *mapped_area, size_t file_size, size_t block
   stats.thread_id = thread_id;
 
   if (enable_numa) {
+    static std::atomic<bool> warned(false);
     if (numa_run_on_node(numa_node) != 0) {
-      std::cerr << "Warning: Failed to bind MMAP writer thread " << thread_id
-                << " to NUMA node " << numa_node << ": " << strerror(errno)
-                << std::endl;
+      warn_numa_bind_failure_once(warned, "MMAP writer", thread_id, numa_node);
     }
   }
 

@@ -72,9 +72,9 @@ void BPF_STRUCT_OPS(video_transcode_enqueue, struct task_struct *p, u64 enq_flag
 void BPF_STRUCT_OPS(video_transcode_dispatch, s32 cpu, struct task_struct *prev)
 {
 	/* Priority dispatch: always try large video tasks first */
-	if (!scx_bpf_dsq_move_to_local(LARGE_VIDEO_DSQ)) {
+	if (!scx_bpf_dsq_move_to_local(LARGE_VIDEO_DSQ, 0)) {
 		/* If no large video tasks, dispatch small video tasks */
-		scx_bpf_dsq_move_to_local(SMALL_VIDEO_DSQ);
+		scx_bpf_dsq_move_to_local(SMALL_VIDEO_DSQ, 0);
 	}
 }
 

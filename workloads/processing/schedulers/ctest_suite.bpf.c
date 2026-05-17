@@ -69,9 +69,9 @@ void BPF_STRUCT_OPS(ctest_suite_enqueue, struct task_struct *p, u64 enq_flags)
 void BPF_STRUCT_OPS(ctest_suite_dispatch, s32 cpu, struct task_struct *prev)
 {
 	/* Priority dispatch: always try long test queue first */
-	if (!scx_bpf_dsq_move_to_local(LONG_DSQ)) {
+	if (!scx_bpf_dsq_move_to_local(LONG_DSQ, 0)) {
 		/* If no long test, dispatch short tests */
-		scx_bpf_dsq_move_to_local(SHORT_DSQ);
+		scx_bpf_dsq_move_to_local(SHORT_DSQ, 0);
 	}
 }
 

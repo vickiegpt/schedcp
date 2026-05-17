@@ -113,9 +113,9 @@ void BPF_STRUCT_OPS(hotkey_enqueue, struct task_struct *p, u64 enq_flags)
 void BPF_STRUCT_OPS(hotkey_dispatch, s32 cpu, struct task_struct *prev)
 {
 	/* Priority dispatch: try queues in order of priority */
-	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ)) {
-		if (!scx_bpf_dsq_move_to_local(SMALL_DSQ)) {
-			scx_bpf_dsq_move_to_local(OTHER_DSQ);
+	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ, 0)) {
+		if (!scx_bpf_dsq_move_to_local(SMALL_DSQ, 0)) {
+			scx_bpf_dsq_move_to_local(OTHER_DSQ, 0);
 		}
 	}
 }

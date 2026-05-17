@@ -97,11 +97,11 @@ void BPF_STRUCT_OPS(git_add_different_enqueue, struct task_struct *p, u64 enq_fl
 void BPF_STRUCT_OPS(git_add_different_dispatch, s32 cpu, struct task_struct *prev)
 {
 	/* Priority dispatch: always try large git operations first */
-	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ)) {
+	if (!scx_bpf_dsq_move_to_local(LARGE_DSQ, 0)) {
 		/* If no large operations, dispatch small git operations */
-		if (!scx_bpf_dsq_move_to_local(SMALL_DSQ)) {
+		if (!scx_bpf_dsq_move_to_local(SMALL_DSQ, 0)) {
 			/* Finally, dispatch other tasks from global queue */
-			scx_bpf_dsq_move_to_local(SCX_DSQ_GLOBAL);
+			scx_bpf_dsq_move_to_local(SCX_DSQ_GLOBAL, 0);
 		}
 	}
 }

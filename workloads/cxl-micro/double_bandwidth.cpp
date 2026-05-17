@@ -15,6 +15,7 @@
 #include <iostream>
 #include <mutex>
 #include <numa.h>
+#include <sched.h>
 #include <sys/mman.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -31,7 +32,7 @@ constexpr int DEFAULT_DURATION = 30;                             // seconds
 constexpr int DEFAULT_NUM_THREADS = 500;    // total threads
 constexpr float DEFAULT_READ_RATIO = 0.5;   // 50% readers, 50% writers
 constexpr size_t DEFAULT_MAX_BANDWIDTH = 0; // 0 means unlimited (MB/s)
-constexpr int DEFAULT_NUMA_NODE = 2;        // Default NUMA node
+constexpr int DEFAULT_NUMA_NODE = 0;        // Default CPU NUMA node
 
 // ThreadStats and RateLimiter are now defined in thread_workers.hpp
 
@@ -47,10 +48,93 @@ struct BenchmarkConfig {
   bool is_cxl_mem = false;
   size_t cpu_workload_size = 0;      // CPU workload size in bytes (default: 0)
   int numa_node = DEFAULT_NUMA_NODE; // NUMA node to bind to
+  int memory_numa_node = -1;         // NUMA node for memory allocation (-1 = default)
   bool enable_numa = true;           // Enable NUMA binding
   bool json_output = true;          // Output results in JSON format
   bool random_access = true;         // Random access pattern (default: true)
 };
+
+namespace {
+
+[[noreturn]] void die_invalid_arg(const char *option, const char *value,
+                                  const char *message) {
+  std::cerr << "Invalid value for " << option;
+  if (value) {
+    std::cerr << ": " << value;
+  }
+  std::cerr << " (" << message << ")\n";
+  std::exit(1);
+}
+
+int parse_int_arg(const char *option, const char *value) {
+  if (!value) {
+    die_invalid_arg(option, value, "missing argument");
+  }
+
+  try {
+    return std::stoi(value);
+  } catch (const std::exception &) {
+    die_invalid_arg(option, value, "expected integer");
+  }
+}
+
+size_t parse_size_arg(const char *option, const char *value) {
+  if (!value) {
+    die_invalid_arg(option, value, "missing argument");
+  }
+
+  try {
+    return std::stoull(value);
+  } catch (const std::exception &) {
+    die_invalid_arg(option, value, "expected unsigned integer");
+  }
+}
+
+float parse_float_arg(const char *option, const char *value) {
+  if (!value) {
+    die_invalid_arg(option, value, "missing argument");
+  }
+
+  try {
+    return std::stof(value);
+  } catch (const std::exception &) {
+    die_invalid_arg(option, value, "expected floating-point number");
+  }
+}
+
+bool node_has_allowed_cpus(int node) {
+  struct bitmask *node_cpus = numa_allocate_cpumask();
+  if (!node_cpus) {
+    return false;
+  }
+
+  bool has_allowed_cpu = false;
+  if (numa_node_to_cpus(node, node_cpus) == 0) {
+    const int cpu_count = node_cpus->size;
+    cpu_set_t *allowed = CPU_ALLOC(cpu_count);
+    if (allowed) {
+      const size_t allowed_size = CPU_ALLOC_SIZE(cpu_count);
+      CPU_ZERO_S(allowed_size, allowed);
+
+      if (sched_getaffinity(0, allowed_size, allowed) == 0) {
+        for (int cpu = 0; cpu < cpu_count; ++cpu) {
+          if (numa_bitmask_isbitset(node_cpus, cpu) &&
+              CPU_ISSET_S(cpu, allowed_size, allowed)) {
+            has_allowed_cpu = true;
+            break;
+          }
+        }
+      }
+
+      CPU_FREE(allowed);
+    }
+  }
+
+  numa_free_cpumask(node_cpus);
+  return has_allowed_cpu;
+}
+
+} // namespace
 
 void print_usage(const char *prog_name) {
   std::cerr
@@ -73,7 +157,9 @@ void print_usage(const char *prog_name) {
       << "  -w, --cpu-workload=SIZE    CPU workload size in bytes (default: "
          "0)\n"
       << "  -N, --numa-node=NODE      Bind threads to a specific NUMA node "
-         "(default: 1)\n"
+         "(default: 0)\n"
+      << "  -M, --mem-node=NODE       Allocate benchmark memory on a specific "
+         "NUMA node\n"
       << "  -n, --no-numa             Disable NUMA binding\n"
       << "  -R, --random              Use random access pattern (default)\n"
       << "  -S, --sequential          Use sequential access pattern\n"
@@ -95,7 +181,8 @@ BenchmarkConfig parse_args(int argc, char *argv[]) {
       {"mmap", no_argument, 0, 'm'},
       {"cxl-mem", no_argument, 0, 'c'},
       {"cpu-workload", required_argument, 0, 'w'},
-      {"numa-node", optional_argument, 0, 'N'},
+      {"numa-node", required_argument, 0, 'N'},
+      {"mem-node", required_argument, 0, 'M'},
       {"no-numa", no_argument, 0, 'n'},
       {"random", no_argument, 0, 'R'},
       {"sequential", no_argument, 0, 'S'},
@@ -104,30 +191,30 @@ BenchmarkConfig parse_args(int argc, char *argv[]) {
       {0, 0, 0, 0}};
 
   int opt, option_index = 0;
-  while ((opt = getopt_long(argc, argv, "b:s:t:d:r:B:D:mchw:N:nRSj", long_options,
+  while ((opt = getopt_long(argc, argv, "b:s:t:d:r:B:D:mchw:N:M:nRSj", long_options,
                             &option_index)) != -1) {
     switch (opt) {
     case 'b':
-      config.buffer_size = std::stoull(optarg);
+      config.buffer_size = parse_size_arg("--buffer-size", optarg);
       break;
     case 's':
-      config.block_size = std::stoull(optarg);
+      config.block_size = parse_size_arg("--block-size", optarg);
       break;
     case 't':
-      config.num_threads = std::stoi(optarg);
+      config.num_threads = parse_int_arg("--threads", optarg);
       break;
     case 'd':
-      config.duration = std::stoi(optarg);
+      config.duration = parse_int_arg("--duration", optarg);
       break;
     case 'r':
-      config.read_ratio = std::stof(optarg);
+      config.read_ratio = parse_float_arg("--read-ratio", optarg);
       if (config.read_ratio < 0.0 || config.read_ratio > 1.0) {
         std::cerr << "Read ratio must be between 0.0 and 1.0\n";
         exit(1);
       }
       break;
     case 'B':
-      config.max_bandwidth_mbps = std::stoull(optarg);
+      config.max_bandwidth_mbps = parse_size_arg("--max-bandwidth", optarg);
       break;
     case 'D':
       config.device_path = optarg;
@@ -139,10 +226,13 @@ BenchmarkConfig parse_args(int argc, char *argv[]) {
       config.is_cxl_mem = true;
       break;
     case 'w':
-      config.cpu_workload_size = std::stoull(optarg);
+      config.cpu_workload_size = parse_size_arg("--cpu-workload", optarg);
       break;
     case 'N':
-      config.numa_node = std::stoi(optarg);
+      config.numa_node = parse_int_arg("--numa-node", optarg);
+      break;
+    case 'M':
+      config.memory_numa_node = parse_int_arg("--mem-node", optarg);
       break;
     case 'n':
       config.enable_numa = false;
@@ -172,15 +262,18 @@ BenchmarkConfig parse_args(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
   BenchmarkConfig config = parse_args(argc, argv);
-  config.numa_node=1;
+  bool numa_available_on_system = false;
+
   // Initialize and validate NUMA if enabled
-  if (config.enable_numa) {
+  if (config.enable_numa || config.memory_numa_node >= 0) {
     if (numa_available() == -1) {
       std::cerr
-          << "NUMA is not available on this system. Disabling NUMA binding."
+          << "NUMA is not available on this system. Disabling NUMA features."
           << std::endl;
       config.enable_numa = false;
+      config.memory_numa_node = -1;
     } else {
+      numa_available_on_system = true;
       int max_node = numa_max_node();
       if (config.numa_node > max_node) {
         std::cerr << "Error: NUMA node " << config.numa_node
@@ -188,6 +281,26 @@ int main(int argc, char *argv[]) {
                   << std::endl;
         return 1;
       }
+
+      if (config.memory_numa_node > max_node) {
+        std::cerr << "Error: Memory NUMA node " << config.memory_numa_node
+                  << " does not exist. Maximum node is " << max_node
+                  << std::endl;
+        return 1;
+      }
+
+      if (config.enable_numa && !node_has_allowed_cpus(config.numa_node)) {
+        std::cerr << "Warning: NUMA node " << config.numa_node
+                  << " has no CPUs available to this process. Disabling CPU "
+                     "binding.";
+        if (config.memory_numa_node < 0) {
+          std::cerr << " Use --mem-node=" << config.numa_node
+                    << " if you intended to place memory on that node.";
+        }
+        std::cerr << std::endl;
+        config.enable_numa = false;
+      }
+
       if (!config.json_output) {
         std::cout << "NUMA initialized successfully. Available nodes: 0-"
                   << max_node << std::endl;
@@ -255,6 +368,13 @@ int main(int argc, char *argv[]) {
       std::cout << "NUMA binding: Disabled" << std::endl;
     }
 
+    if (config.memory_numa_node >= 0) {
+      std::cout << "Memory allocation node: " << config.memory_numa_node
+                << std::endl;
+    } else {
+      std::cout << "Memory allocation node: default policy" << std::endl;
+    }
+
     std::cout << "Access pattern: " << (config.random_access ? "Random" : "Sequential") << std::endl;
 
     std::cout << "\nStarting benchmark..." << std::endl;
@@ -268,11 +388,18 @@ int main(int argc, char *argv[]) {
   void *buffer = nullptr;
   int fd = -1;
   void *mapped_area = nullptr;
+  bool used_numa_alloc = false;
 
   try {
     if (config.device_path.empty()) {
       // Allocate memory buffer
-      buffer = aligned_alloc(4096, config.buffer_size);
+      if (numa_available_on_system && config.memory_numa_node >= 0) {
+        buffer = numa_alloc_onnode(config.buffer_size, config.memory_numa_node);
+        used_numa_alloc = (buffer != nullptr);
+      } else {
+        buffer = aligned_alloc(4096, config.buffer_size);
+      }
+
       if (!buffer) {
         std::cerr << "Failed to allocate memory: " << strerror(errno)
                   << std::endl;
@@ -438,6 +565,8 @@ int main(int argc, char *argv[]) {
       std::cout << "  \"total_write_ops\": " << total_write_ops << ",\n";
       std::cout << "  \"numa_node\": " << config.numa_node << ",\n";
       std::cout << "  \"enable_numa\": " << (config.enable_numa ? "true" : "false") << ",\n";
+      std::cout << "  \"memory_numa_node\": " << config.memory_numa_node << ",\n";
+      std::cout << "  \"used_numa_alloc\": " << (used_numa_alloc ? "true" : "false") << ",\n";
       std::cout << "  \"device_path\": \"" << config.device_path << "\",\n";
       std::cout << "  \"use_mmap\": " << (config.use_mmap ? "true" : "false") << ",\n";
       std::cout << "  \"is_cxl_mem\": " << (config.is_cxl_mem ? "true" : "false") << ",\n";
@@ -475,7 +604,11 @@ int main(int argc, char *argv[]) {
   }
 
   if (buffer) {
-    free(buffer);
+    if (used_numa_alloc) {
+      numa_free(buffer, config.buffer_size);
+    } else {
+      free(buffer);
+    }
   }
 
   return 0;
