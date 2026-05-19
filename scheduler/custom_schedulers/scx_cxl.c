@@ -294,7 +294,11 @@ int main(int argc, char **argv)
 	
 	parse_args(argc, argv);
 	
-	skel = SCX_OPS_OPEN(cxl_ops, scx_cxl);
+	/* SCX_OPS_OPEN references newer struct_ops fields not emitted by this host's bpftool. */
+	skel = scx_cxl__open();
+	SCX_BUG_ON(!skel, "Could not open scx_cxl");
+	skel->struct_ops.cxl_ops->hotplug_seq = scx_hotplug_seq();
+	SCX_ENUM_INIT(skel);
 	
 	skel->rodata->nr_cpus = config.nr_cpus;
 	skel->rodata->slice_ns = config.slice_us * 1000;

@@ -446,14 +446,14 @@ void BPF_STRUCT_OPS(cxl_dispatch, s32 cpu, struct task_struct *prev)
 {
 	__sync_fetch_and_add(&stats.total_dispatches, 1);
 	
-	if (scx_bpf_dsq_move_to_local(VECTORDB_DSQ_ID))
+	if (scx_bpf_dsq_move_to_local(VECTORDB_DSQ_ID, 0))
 		return;
-	if (scx_bpf_dsq_move_to_local(READ_INTENSIVE_DSQ_ID))
+	if (scx_bpf_dsq_move_to_local(READ_INTENSIVE_DSQ_ID, 0))
 		return;
-	if (scx_bpf_dsq_move_to_local(WRITE_INTENSIVE_DSQ_ID))
+	if (scx_bpf_dsq_move_to_local(WRITE_INTENSIVE_DSQ_ID, 0))
 		return;
 	
-	scx_bpf_dsq_move_to_local(FALLBACK_DSQ_ID);
+	scx_bpf_dsq_move_to_local(FALLBACK_DSQ_ID, 0);
 }
 
 void BPF_STRUCT_OPS(cxl_running, struct task_struct *p)
