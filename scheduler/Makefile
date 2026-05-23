@@ -1,6 +1,13 @@
 # Makefile for building SCX schedulers
 
-.PHONY: all build build-c build-rust build-tools clean help update doc deps install-deps install
+.PHONY: all build build-c build-rust build-tools check-scx-submodule clean help update doc deps install-deps install
+
+MESON_CC ?= $(shell command -v gcc 2>/dev/null || command -v cc)
+BPFTOOL ?= $(shell command -v bpftool 2>/dev/null || echo bpftool)
+SCX_C_BUILD_DIR ?= build-c
+SCX_BUILD_DIR ?= build
+MESON_SETUP_BASE = CC=$(MESON_CC) meson setup
+MESON_SETUP_FLAGS = --prefix=~ -Dbpftool=$(BPFTOOL) -Dlibbpf_a=disabled
 
 # Default target
 all: build build-tools
@@ -11,33 +18,40 @@ build: build-c build-rust
 	@echo "Listing all compiled schedulers:"
 	@ls -la sche_bin/ 2>/dev/null || echo "No schedulers found in sche_bin/"
 
+check-scx-submodule:
+	@if [ ! -f scx/meson.build ]; then \
+		echo "SCX submodule is not initialized."; \
+		echo "Run: git submodule update --init --recursive scheduler/scx"; \
+		exit 1; \
+	fi
+
 # Build C schedulers only
-build-c:
+build-c: check-scx-submodule
 	@echo "Building C SCX schedulers..."
 	@mkdir -p sche_bin
 	@cd scx && \
 	echo "Setting up meson build..."; \
-	rm -rf build; \
-	meson setup build --prefix=~ || exit 1; \
+	rm -rf $(SCX_C_BUILD_DIR); \
+	$(MESON_SETUP_BASE) $(SCX_C_BUILD_DIR) $(MESON_SETUP_FLAGS) -Denable_rust=false || exit 1; \
 	echo "Building all C schedulers..."; \
-	meson compile -C build 2>/dev/null || meson compile -C build || exit 1; \
+	meson compile -C $(SCX_C_BUILD_DIR) 2>/dev/null || meson compile -C $(SCX_C_BUILD_DIR) || exit 1; \
 	echo "Copying C schedulers to sche_bin..."; \
-	find build -name "scx_*" -type f -executable ! -name "*.o" ! -name "*.a" ! -name "*_test" ! -name "*.d" -exec cp {} ../sche_bin/ \; 2>/dev/null || true
+	find $(SCX_C_BUILD_DIR) -name "scx_*" -type f -executable ! -name "*.o" ! -name "*.a" ! -name "*_test" ! -name "*.d" -exec cp {} ../sche_bin/ \; 2>/dev/null || true
 	@echo "C schedulers built successfully!"
 
 # Build Rust schedulers
-build-rust:
+build-rust: check-scx-submodule
 	@echo "Building Rust SCX schedulers..."
 	@mkdir -p sche_bin
 	@cd scx && \
 	echo "Setting up full meson build for Rust schedulers..."; \
-	if [ ! -d build ]; then \
-		meson setup build --prefix=~ || exit 1; \
+	if [ ! -d $(SCX_BUILD_DIR) ]; then \
+		$(MESON_SETUP_BASE) $(SCX_BUILD_DIR) $(MESON_SETUP_FLAGS) || exit 1; \
 	fi; \
 	echo "Building Rust schedulers via meson..."; \
-	meson compile -C build || exit 1; \
+	meson compile -C $(SCX_BUILD_DIR) || exit 1; \
 	echo "Copying Rust schedulers from build to sche_bin..."; \
-	find build -name "scx_*" -type f -executable ! -name "*.o" ! -name "*.a" ! -name "*_test" ! -name "*.d" -exec cp {} ../sche_bin/ \; 2>/dev/null || true; \
+	find $(SCX_BUILD_DIR) -name "scx_*" -type f -executable ! -name "*.o" ! -name "*.a" ! -name "*_test" ! -name "*.d" -exec cp {} ../sche_bin/ \; 2>/dev/null || true; \
 	echo "Also copying from target/release if available..."; \
 	if [ -d target/release ]; then \
 		for binary in target/release/scx_*; do \
@@ -50,23 +64,20 @@ build-rust:
 	@echo "Rust schedulers build complete!"
 
 # Build tools (scx_loader, scxctl, scxtop)
-build-tools:
+build-tools: check-scx-submodule
 	@echo "Building SCX tools..."
 	@mkdir -p tools
 	@cd scx && \
 	echo "Building tools via meson..."; \
-	if [ ! -d build ]; then \
-		meson setup build --prefix=~ || exit 1; \
+	if [ ! -d $(SCX_BUILD_DIR) ]; then \
+		$(MESON_SETUP_BASE) $(SCX_BUILD_DIR) $(MESON_SETUP_FLAGS) || exit 1; \
 	fi; \
 	echo "Building scx_loader..."; \
-	cd rust/scx_loader && cargo build --release 2>&1 | grep -E "Compiling|Building|Finished|error" || true; \
-	cd ../.. && \
+	cargo build --release --manifest-path tools/scx_loader/Cargo.toml || exit 1; \
 	echo "Building scxctl..."; \
-	cd tools/scxctl && cargo build --release 2>&1 | grep -E "Compiling|Building|Finished|error" || true; \
-	cd ../.. && \
+	cargo build --release --manifest-path tools/scxctl/Cargo.toml || exit 1; \
 	echo "Building scxtop..."; \
-	cd tools/scxtop && cargo build --release 2>&1 | grep -E "Compiling|Building|Finished|error" || true; \
-	cd ../.. && \
+	cargo build --release --manifest-path tools/scxtop/Cargo.toml || exit 1; \
 	echo "Copying tools to tools/ directory..."; \
 	if [ -d target/release ]; then \
 		for tool in scx_loader scxctl scxtop; do \
@@ -76,11 +87,19 @@ build-tools:
 			else \
 				echo "  ✗ $$tool not found"; \
 			fi; \
+			done; \
+		fi; \
+	if [ -d $(SCX_BUILD_DIR)/debug ]; then \
+		for tool in scx_loader scxctl scxtop; do \
+			if [ ! -f "../tools/$$tool" ] && [ -f "$(SCX_BUILD_DIR)/debug/$$tool" ]; then \
+				cp "$(SCX_BUILD_DIR)/debug/$$tool" ../tools/ && \
+				echo "  ✓ $$tool copied to tools/"; \
+			fi; \
 		done; \
 	fi; \
 	echo "Looking for other tools in meson build..."; \
-	if [ -d build ]; then \
-		find build -name "dsq_lat" -o -name "runq_lat" -o -name "veristat*" -type f -executable | while read tool; do \
+	if [ -d $(SCX_BUILD_DIR) ]; then \
+		find $(SCX_BUILD_DIR) \( -name "dsq_lat" -o -name "runq_lat" -o -name "veristat*" \) -type f -executable | while read tool; do \
 			cp "$$tool" ../tools/ 2>/dev/null && \
 			echo "  ✓ $$(basename $$tool) copied to tools/"; \
 		done; \
@@ -100,9 +119,10 @@ install-deps:
 		sudo apt-get update && sudo apt-get install -y \
 			build-essential \
 			clang \
-			llvm \
-			libelf-dev \
-			libz-dev \
+				llvm \
+				libbpf-dev \
+				libelf-dev \
+				libz-dev \
 			libzstd-dev \
 			libseccomp-dev \
 			pkg-config \
@@ -123,9 +143,10 @@ install-deps:
 		echo "Using dnf (Fedora/RHEL)..."; \
 		sudo dnf install -y \
 			clang \
-			llvm \
-			elfutils-libelf-devel \
-			zlib-devel \
+				llvm \
+				libbpf-devel \
+				elfutils-libelf-devel \
+				zlib-devel \
 			libzstd-devel \
 			libseccomp-devel \
 			pkgconfig \
@@ -144,9 +165,10 @@ install-deps:
 		sudo pacman -S --needed --noconfirm \
 			base-devel \
 			clang \
-			llvm \
-			libelf \
-			zlib \
+				llvm \
+				libbpf \
+				libelf \
+				zlib \
 			zstd \
 			libseccomp \
 			pkgconf \

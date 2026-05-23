@@ -1,4 +1,4 @@
-.PHONY: all build build-redis build-tools configure benchmark clean install deps test
+workloads/redis/Makefile.PHONY: all build build-redis build-tools configure benchmark clean install deps test
 
 # Redis configuration
 REDIS_DIR = redis-src
@@ -18,7 +18,8 @@ all: deps build configure
 deps:
 	@echo "Installing Redis dependencies..."
 	sudo apt-get update
-	sudo apt-get install -y build-essential tcl pkg-config libsystemd-dev
+	sudo apt-get install -y build-essential tcl pkg-config libsystemd-dev \
+		autoconf automake libpcre2-dev libevent-dev zlib1g-dev libssl-dev
 
 # Initialize and update submodule
 init-submodule:
@@ -34,9 +35,8 @@ build-redis:
 	@echo "Building Redis from submodule..."
 	@echo "Fixing hdr_histogram for redis-benchmark..."
 	@cd $(REDIS_DIR)/deps/hdr_histogram && \
-		make clean 2>/dev/null || true && \
-		cc -std=c99 -Wall -Os -g -DHDR_MALLOC_INCLUDE=\\\"hdr_redis_malloc.h\\\" -c hdr_histogram.c && \
-		ar rcs libhdrhistogram.a hdr_histogram.o
+		$(MAKE) clean 2>/dev/null || true && \
+		$(MAKE)
 	cd $(REDIS_DIR) && make -j$(BUILD_THREADS) BUILD_TLS=yes
 	@echo "Redis binaries built successfully:"
 	@ls -la $(REDIS_SERVER) $(REDIS_CLI) $(REDIS_BENCHMARK) 2>/dev/null || true

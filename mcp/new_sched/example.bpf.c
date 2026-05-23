@@ -16,9 +16,6 @@ static bool is_long_task(struct task_struct *p)
 {
 	pid_t pid = p->pid;
 	struct filename_info *info;
-	char local_filename[MAX_FILENAME_LEN];
-	const char *basename;
-	int last_slash = -1;
 
 	char comm[16];
 	
@@ -107,9 +104,9 @@ void BPF_STRUCT_OPS(ctest_enqueue, struct task_struct *p, u64 enq_flags)
 void BPF_STRUCT_OPS(ctest_dispatch, s32 cpu, struct task_struct *prev)
 {
 	/* Priority dispatch: always try long tasks first */
-	if (!scx_bpf_dsq_move_to_local(LONG_DSQ)) {
+	if (!scx_bpf_dsq_move_to_local(LONG_DSQ, 0)) {
 		/* If no long tasks, dispatch short tasks */
-		scx_bpf_dsq_move_to_local(SHORT_DSQ);
+		scx_bpf_dsq_move_to_local(SHORT_DSQ, 0);
 	}
 }
 
