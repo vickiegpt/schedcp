@@ -1,0 +1,3 @@
+trace,scheduler,n,read_ops_per_tx,write_ops_per_tx,median_tps,median_avg_micros,stdev_tps,tps_speedup_vs_default,tps_delta_pct_vs_default,latency_delta_pct_vs_default
+payment,default,1,3.0,3.0,398318.0,2.51056,0.0,1.0,0.0,0.0
+payment,scx_nest_slug_read,1,3.0,3.0,410350.0,2.43695,0.0,1.030207020521292,3.0207020521292094,-2.932015167930657

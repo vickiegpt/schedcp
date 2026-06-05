@@ -704,6 +704,105 @@
       "performance_profile": "optimized for frequency boost and power efficiency"
     },
     {
+      "name": "scx_nest_slug",
+      "binary": "scx_nest",
+      "args": [
+        "-H",
+        "/sys/fs/bpf/schedcp/slug_task_hints",
+        "-N",
+        "4"
+      ],
+      "production_ready": true,
+      "description": "SLUG-selective Nest scheduler. Workload markers publish per-thread read/write/balanced/pipeline hints to a pinned BPF map; only hint 4 takes the warm-core Nest placement path, while other hints use default-like CPU selection.",
+      "use_cases": [
+        "phase_marked_workloads",
+        "mixed_read_write_services",
+        "selective_frequency_sensitive_regions"
+      ],
+      "algorithm": "slug_selective_warm_core_clustering",
+      "characteristics": "per-thread hint map, read write phase markers, selective nest placement, default-like fallback placement",
+      "tuning_parameters": {
+        "slug_hint_map": {
+          "type": "string",
+          "description": "Pinned BPF map path for per-thread SLUG hints",
+          "default": "/sys/fs/bpf/schedcp/slug_task_hints"
+        },
+        "slug_nest_hint": {
+          "type": "integer",
+          "description": "Hint value that receives Nest placement",
+          "default": 4
+        }
+      },
+      "limitations": "Requires workload markers and a writable BPF filesystem pin path",
+      "performance_profile": "applies warm-core clustering only to marked regions that benefit from it"
+    },
+    {
+      "name": "scx_nest_slug_read",
+      "binary": "scx_nest",
+      "args": [
+        "-H",
+        "/sys/fs/bpf/schedcp/slug_task_hints",
+        "-N",
+        "1"
+      ],
+      "production_ready": true,
+      "description": "SLUG-selective Nest scheduler variant that applies warm-core Nest placement only to read-marked threads.",
+      "use_cases": [
+        "read_marked_workloads",
+        "memory_read_microbenchmarks",
+        "selective_frequency_sensitive_regions"
+      ],
+      "algorithm": "slug_selective_warm_core_clustering",
+      "characteristics": "per-thread hint map, read phase selection, default-like fallback placement",
+      "tuning_parameters": {
+        "slug_hint_map": {
+          "type": "string",
+          "description": "Pinned BPF map path for per-thread SLUG hints",
+          "default": "/sys/fs/bpf/schedcp/slug_task_hints"
+        },
+        "slug_nest_hint": {
+          "type": "integer",
+          "description": "Hint value that receives Nest placement",
+          "default": 1
+        }
+      },
+      "limitations": "Requires workload markers and a writable BPF filesystem pin path",
+      "performance_profile": "applies warm-core clustering only to read-marked regions"
+    },
+    {
+      "name": "scx_nest_slug_write",
+      "binary": "scx_nest",
+      "args": [
+        "-H",
+        "/sys/fs/bpf/schedcp/slug_task_hints",
+        "-N",
+        "2"
+      ],
+      "production_ready": true,
+      "description": "SLUG-selective Nest scheduler variant that applies warm-core Nest placement only to write-marked threads.",
+      "use_cases": [
+        "write_marked_workloads",
+        "memory_write_microbenchmarks",
+        "selective_frequency_sensitive_regions"
+      ],
+      "algorithm": "slug_selective_warm_core_clustering",
+      "characteristics": "per-thread hint map, write phase selection, default-like fallback placement",
+      "tuning_parameters": {
+        "slug_hint_map": {
+          "type": "string",
+          "description": "Pinned BPF map path for per-thread SLUG hints",
+          "default": "/sys/fs/bpf/schedcp/slug_task_hints"
+        },
+        "slug_nest_hint": {
+          "type": "integer",
+          "description": "Hint value that receives Nest placement",
+          "default": 2
+        }
+      },
+      "limitations": "Requires workload markers and a writable BPF filesystem pin path",
+      "performance_profile": "applies warm-core clustering only to write-marked regions"
+    },
+    {
       "name": "scx_p2dq",
       "production_ready": true,
       "description": "A versatile scheduler with multi-layer queuing using pick-two load balancing. Implements slice-based task classification to automatically detect interactive vs batch tasks. Features configurable time slices and load balancing across LLC domains with interactive task prioritization.",

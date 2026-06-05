@@ -11,7 +11,10 @@ import json
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+try:
+    import seaborn as sns
+except ImportError:
+    sns = None
 import numpy as np
 from pathlib import Path
 import argparse
@@ -44,8 +47,8 @@ class LlamaBenchmarkTester(SchedulerBenchmark):
         """
         super().__init__(scheduler_runner)
         
-        self.llama_bench_path = llama_bench_path
-        self.model_path = model_path
+        self.llama_bench_path = os.path.abspath(llama_bench_path)
+        self.model_path = os.path.abspath(model_path)
         self.results_dir = results_dir
         
         # Create results directory
@@ -129,7 +132,10 @@ class LlamaBenchmarkTester(SchedulerBenchmark):
             avg_ns = obj.get("avg_ns", 0)
             n_tokens = obj.get(n_tokens_key, 0)
             try:
-                return (avg_ns * n_tokens) / 1e9  # convert ns-per-token × tokens → seconds
+                if avg_ns:
+                    return avg_ns / 1e9
+                avg_ts = obj.get("avg_ts", 0)
+                return (n_tokens / avg_ts) if avg_ts else 0.0
             except Exception:
                 return 0.0
 
@@ -202,7 +208,9 @@ class LlamaBenchmarkTester(SchedulerBenchmark):
         
         return metrics
     
-    def run_all_llama_benchmarks(self, production_only: bool = True) -> dict:
+    def run_all_llama_benchmarks(self, production_only: bool = True,
+                                  schedulers: list = None,
+                                  include_default: bool = True) -> dict:
         """
         Run llama-bench tests for all schedulers.
         
@@ -215,11 +223,13 @@ class LlamaBenchmarkTester(SchedulerBenchmark):
         results = {}
         
         # Test default scheduler first
-        print("Testing default scheduler...")
-        results["default"] = self.run_llama_benchmark()
-        
+        if include_default:
+            print("Testing default scheduler...")
+            results["default"] = self.run_llama_benchmark()
+            self.save_results(results)
+
         # Test each scheduler
-        schedulers = self.runner.get_available_schedulers(production_only)
+        schedulers = schedulers or self.runner.get_available_schedulers(production_only)
         for scheduler_name in schedulers:
             try:
                 print(f"Testing scheduler: {scheduler_name}")
@@ -335,8 +345,12 @@ class LlamaBenchmarkTester(SchedulerBenchmark):
         
         # Save figure
         figure_path = os.path.join(self.results_dir, "llama_scheduler_performance.png")
+        pdf_path = os.path.join(self.results_dir, "llama_scheduler_performance.pdf")
         plt.savefig(figure_path, dpi=300, bbox_inches='tight')
+        plt.savefig(pdf_path, format="pdf", bbox_inches='tight')
+        plt.close(fig)
         print(f"Performance figure saved to {figure_path}")
+        print(f"Performance PDF saved to {pdf_path}")
         
         # Print summary
         self.print_performance_summary(results)
@@ -423,14 +437,20 @@ class LlamaBenchmarkTester(SchedulerBenchmark):
         
         # 1. Heatmap for TG performance
         tg_pivot = df.pivot(index='threads', columns='batch_size', values='tg_tps')
-        sns.heatmap(tg_pivot, annot=True, fmt='.1f', cmap='viridis', ax=axes[0,0])
+        if sns:
+            sns.heatmap(tg_pivot, annot=True, fmt='.1f', cmap='viridis', ax=axes[0,0])
+        else:
+            axes[0,0].imshow(tg_pivot.values, aspect='auto')
         axes[0,0].set_title('Text Generation Performance (tokens/sec)')
         axes[0,0].set_xlabel('Batch Size')
         axes[0,0].set_ylabel('Thread Count')
         
         # 2. Heatmap for PP performance
         pp_pivot = df.pivot(index='threads', columns='batch_size', values='pp_tps')
-        sns.heatmap(pp_pivot, annot=True, fmt='.1f', cmap='plasma', ax=axes[0,1])
+        if sns:
+            sns.heatmap(pp_pivot, annot=True, fmt='.1f', cmap='plasma', ax=axes[0,1])
+        else:
+            axes[0,1].imshow(pp_pivot.values, aspect='auto')
         axes[0,1].set_title('Prompt Processing Performance (tokens/sec)')
         axes[0,1].set_xlabel('Batch Size')
         axes[0,1].set_ylabel('Thread Count')
@@ -476,10 +496,10 @@ def main():
 
     """Main function for llama scheduler testing"""
     parser = argparse.ArgumentParser(description="Test schedulers with llama-bench")
-    parser.add_argument("--llama-bench-path", 
+    parser.add_argument("--llama-bench-path",
                        default=os.path.join(current_dir, "build/bin/llama-bench"),
                        help="Path to llama-bench binary")
-    parser.add_argument("--model-path", 
+    parser.add_argument("--model-path",
                        default=os.path.join(current_dir, "models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"),
                        help="Path to model file")
     parser.add_argument("--results-dir", default="results", 
@@ -498,6 +518,14 @@ def main():
                        help="Run parameter sweep for each scheduler")
     parser.add_argument("--scheduler", type=str, default=None,
                        help="Test specific scheduler only")
+    parser.add_argument("--schedulers", nargs="+", default=None,
+                       help="Test an explicit list of schedulers after default")
+    parser.add_argument("--skip-default", action="store_true",
+                       help="Do not run the default Linux scheduler baseline")
+    parser.add_argument("--default-only", action="store_true",
+                       help="Run only the default Linux scheduler baseline")
+    parser.add_argument("--n-samples", type=int, default=50,
+                       help="Number of generated tokens for llama-bench")
     
     args = parser.parse_args()
     
@@ -509,7 +537,8 @@ def main():
         threads=args.threads,
         batch_size=args.batch_size,
         repetitions=args.repetitions,
-        timeout=args.timeout
+        timeout=args.timeout,
+        n_samples=args.n_samples
     )
     
     # Check if files exist
@@ -538,13 +567,20 @@ def main():
                 except Exception as e:
                     print(f"Error in parameter sweep for {scheduler_name}: {e}")
     else:
-        if args.scheduler:
+        if args.default_only:
+            print("Testing default scheduler only")
+            results = {"default": tester.run_llama_benchmark()}
+        elif args.scheduler:
             print(f"Testing scheduler: {args.scheduler}")
             result = tester.run_llama_benchmark(args.scheduler)
             results = {args.scheduler: result}
         else:
             print("Starting llama scheduler performance tests...")
-            results = tester.run_all_llama_benchmarks(production_only=args.production_only)
+            results = tester.run_all_llama_benchmarks(
+                production_only=args.production_only,
+                schedulers=args.schedulers,
+                include_default=not args.skip_default,
+            )
         
         # Generate figures
         tester.generate_performance_figures(results)

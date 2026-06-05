@@ -1,0 +1,24 @@
+{
+  "rocksdb_numactl_m1_avg_ops_sec": {
+    "default": 2330241.3333333335,
+    "scx_nest": 2397664.6666666665,
+    "scx_nest_slug_read": 2712650.6666666665,
+    "scx_nest_slug_write": 2740042.6666666665
+  },
+  "nginx_wrk_avg_requests_sec": {
+    "default": 490182.19,
+    "scx_nest": 447197.05,
+    "scx_nest_slug_read": 489633.23,
+    "scx_nest_slug_write": 494623.0466666667
+  },
+  "vsag_existing_qps": {
+    "default": 3607.09429795329,
+    "scx_nest": 5636.677666660308
+  },
+  "inputs": {
+    "rocksdb": "/root/schedcp/workloads/rocksdb/results/numactl_m1_slug/rocksdb_benchmark_20260601_201354.json",
+    "nginx": "/root/schedcp/workloads/nginx/results/slug_nginx_wrk/nginx_benchmark_20260601_210154.json",
+    "vsag_existing": "/root/schedcp/workloads/pyvsag/results/pyvsag_scheduler_results.json"
+  },
+  "vsag_current_status": "blocked: pyvsag import fails with missing _pyvsag; vsag source build fails on -mavx512pf/-mavx512er with current compiler/Python 3.14"
+}

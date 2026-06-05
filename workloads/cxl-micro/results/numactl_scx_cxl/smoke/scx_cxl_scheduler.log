@@ -1,0 +1,11 @@
+EXIT: unregistered from user space
+CXL Bandwidth-Aware Scheduler Started
+Configuration:
+  CPUs: 48
+  Slice: 20000 us
+  Max read bandwidth: 1000 MB/s
+  Max write bandwidth: 1000 MB/s
+  DAMON: disabled
+  CXL-aware: enabled
+  Bandwidth control: disabled
+

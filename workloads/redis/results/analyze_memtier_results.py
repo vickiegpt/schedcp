@@ -162,15 +162,17 @@ def create_detailed_comparison(df):
     plt.show()
 
 def create_scx_nest_comparison(df):
-    """Create scx_nest vs default comparison with throughput and latency subplots"""
-    
-    # Check if both scx_nest and default exist
-    if 'scx_nest' not in df['scheduler'].unique() or 'default' not in df['scheduler'].unique():
-        print("Skipping scx_nest comparison - scx_nest or default not found in data")
+    """Create Nest-family vs default comparison with throughput and latency subplots"""
+
+    scheduler_name = 'scx_nest_slug' if 'scx_nest_slug' in df['scheduler'].unique() else 'scx_nest'
+    scheduler_label = 'DuplexOS-SLUG' if scheduler_name == 'scx_nest_slug' else 'DuplexOS'
+
+    if scheduler_name not in df['scheduler'].unique() or 'default' not in df['scheduler'].unique():
+        print(f"Skipping {scheduler_name} comparison - scheduler or default not found in data")
         return
     
-    # Get data for scx_nest and default
-    scx_nest_data = df[df['scheduler'] == 'scx_nest']
+    # Get data for selected scheduler and default
+    scx_nest_data = df[df['scheduler'] == scheduler_name]
     default_data = df[df['scheduler'] == 'default']
     
     # Test cases
@@ -213,7 +215,7 @@ def create_scx_nest_comparison(df):
     
     # Plot throughput comparison
     bars1 = ax1.bar(x - width/2, default_throughput, width, label='Default', color='#4472C4', alpha=0.8)
-    bars2 = ax1.bar(x + width/2, scx_nest_throughput, width, label='DuplexOS', color='#ED7D31', alpha=0.8)
+    bars2 = ax1.bar(x + width/2, scx_nest_throughput, width, label=scheduler_label, color='#ED7D31', alpha=0.8)
     
     ax1.set_xlabel('Test Cases', fontsize=20)
     ax1.set_ylabel('Throughput (ops/sec)', fontsize=20)
@@ -276,11 +278,11 @@ def create_scx_nest_comparison(df):
     # Save as PDF
     output_file = 'redis_comparison.pdf'
     plt.savefig(output_file, format='pdf', dpi=300, bbox_inches='tight')
-    print(f"scx_nest vs default comparison saved to {output_file}")
+    print(f"{scheduler_name} vs default comparison saved to {output_file}")
     
     # Print detailed comparison summary
     print("\n" + "="*100)
-    print("DETAILED COMPARISON: DEFAULT vs DUPLEXOS (scx_nest)")
+    print(f"DETAILED COMPARISON: DEFAULT vs {scheduler_label.upper()} ({scheduler_name})")
     print("="*100)
     
     for i, test in enumerate(test_cases):
@@ -294,7 +296,7 @@ def create_scx_nest_comparison(df):
             tput_diff = ((nest_tput - default_tput) / default_tput) * 100
             print(f"  Throughput:")
             print(f"    Default:  {default_tput:>10,.0f} ops/sec")
-            print(f"    DuplexOS: {nest_tput:>10,.0f} ops/sec")
+            print(f"    {scheduler_label}: {nest_tput:>10,.0f} ops/sec")
             print(f"    Difference: {tput_diff:+.1f}% {'(better)' if tput_diff > 0 else '(worse)'}")
         
         # P99 Latency comparison
@@ -304,7 +306,7 @@ def create_scx_nest_comparison(df):
             lat_diff = ((nest_lat - default_lat) / default_lat) * 100
             print(f"  P99 Latency:")
             print(f"    Default:  {default_lat:>8.2f} ms")
-            print(f"    DuplexOS: {nest_lat:>8.2f} ms")
+            print(f"    {scheduler_label}: {nest_lat:>8.2f} ms")
             print(f"    Difference: {lat_diff:+.1f}% {'(worse)' if lat_diff > 0 else '(better)'}")
             
         # Get GET/SET metrics for more detail
@@ -319,7 +321,7 @@ def create_scx_nest_comparison(df):
                 gets_diff = ((nest_gets - default_gets) / default_gets) * 100
                 print(f"  GET Operations:")
                 print(f"    Default:  {default_gets:>10,.0f} ops/sec")
-                print(f"    DuplexOS: {nest_gets:>10,.0f} ops/sec")
+                print(f"    {scheduler_label}: {nest_gets:>10,.0f} ops/sec")
                 print(f"    Difference: {gets_diff:+.1f}%")
             
             # SET operations
@@ -329,7 +331,7 @@ def create_scx_nest_comparison(df):
                 sets_diff = ((nest_sets - default_sets) / default_sets) * 100
                 print(f"  SET Operations:")
                 print(f"    Default:  {default_sets:>10,.0f} ops/sec")
-                print(f"    DuplexOS: {nest_sets:>10,.0f} ops/sec")
+                print(f"    {scheduler_label}: {nest_sets:>10,.0f} ops/sec")
                 print(f"    Difference: {sets_diff:+.1f}%")
     
     # Overall summary
@@ -348,12 +350,12 @@ def create_scx_nest_comparison(df):
     
     print(f"\nAverage Throughput:")
     print(f"  Default:  {avg_default_tput:>10,.0f} ops/sec")
-    print(f"  DuplexOS: {avg_nest_tput:>10,.0f} ops/sec")
+    print(f"  {scheduler_label}: {avg_nest_tput:>10,.0f} ops/sec")
     print(f"  Difference: {avg_tput_diff:+.1f}% {'(better)' if avg_tput_diff > 0 else '(worse)'}")
     
     print(f"\nAverage P99 Latency:")
     print(f"  Default:  {avg_default_p99:>8.2f} ms")
-    print(f"  DuplexOS: {avg_nest_p99:>8.2f} ms")
+    print(f"  {scheduler_label}: {avg_nest_p99:>8.2f} ms")
     print(f"  Difference: {avg_lat_diff:+.1f}% {'(worse)' if avg_lat_diff > 0 else '(better)'}")
     
     # Find best and worst cases for DuplexOS
@@ -364,8 +366,8 @@ def create_scx_nest_comparison(df):
         best_case = max(improvements, key=lambda x: x[1])
         worst_case = min(improvements, key=lambda x: x[1])
         
-        print(f"\nBest improvement for DuplexOS: {best_case[0]} ({best_case[1]:+.1f}% throughput)")
-        print(f"Worst performance for DuplexOS: {worst_case[0]} ({worst_case[1]:+.1f}% throughput)")
+        print(f"\nBest improvement for {scheduler_label}: {best_case[0]} ({best_case[1]:+.1f}% throughput)")
+        print(f"Worst performance for {scheduler_label}: {worst_case[0]} ({worst_case[1]:+.1f}% throughput)")
     
     plt.show()
 
@@ -381,8 +383,8 @@ def main():
     print("\nGenerating detailed GET/SET plots...")
     create_detailed_comparison(df)
     
-    # Create scx_nest vs default comparison
-    print("\nGenerating scx_nest vs default comparison...")
+    # Create Nest-family vs default comparison
+    print("\nGenerating Nest-family vs default comparison...")
     create_scx_nest_comparison(df)
     
     print("\nAnalysis complete!")

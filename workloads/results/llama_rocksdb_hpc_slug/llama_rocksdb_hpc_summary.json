@@ -1,0 +1,35 @@
+{
+  "sources": {
+    "llama": "/root/schedcp/workloads/llama.cpp/results/slug_llama_tinyllama/llama_scheduler_results.json",
+    "rocksdb_tpcc": "/root/schedcp/workloads/rocksdb/results/numactl_m1_tpcc/rocksdb_benchmark_20260601_224800.json",
+    "hpc_memory": "/root/schedcp/workloads/hpc-memory/results/slug_hpc_memory/hpc_memory_benchmark_20260601_225447.json"
+  },
+  "llama_tg_tps": {
+    "default": 20.432566,
+    "scx_nest": 10.064764,
+    "scx_nest_slug": 11.620623,
+    "scx_nest_slug_read": 11.556802,
+    "scx_nest_slug_write": 11.536443
+  },
+  "llama_pp_tps": {
+    "default": 378.464616,
+    "scx_nest": 225.245909,
+    "scx_nest_slug": 254.7072,
+    "scx_nest_slug_read": 254.357871,
+    "scx_nest_slug_write": 253.33414
+  },
+  "rocksdb_tpcc_avg_tps": {
+    "default": 644379.6,
+    "scx_nest": 687574.4,
+    "scx_nest_slug": 712280.8,
+    "scx_nest_slug_read": 733183.8,
+    "scx_nest_slug_write": 676883.4
+  },
+  "hpc_memory_avg_gb_s": {
+    "default": 49.413920000000005,
+    "scx_nest": 50.02288,
+    "scx_nest_slug": 49.39525999999999,
+    "scx_nest_slug_read": 49.785360000000004,
+    "scx_nest_slug_write": 49.95852
+  }
+}

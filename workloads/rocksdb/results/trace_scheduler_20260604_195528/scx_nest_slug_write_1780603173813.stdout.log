@@ -1,0 +1,96 @@
+
+
+Wakeup stats
+------------
+WAKEUP_ATTACHED=0
+WAKEUP_PREV_PRIMARY=0
+WAKEUP_FULLY_IDLE_PRIMARY=0
+WAKEUP_ANY_IDLE_PRIMARY=0
+WAKEUP_FULLY_IDLE_RESERVE=0
+WAKEUP_ANY_IDLE_RESERVE=0
+WAKEUP_IDLE_OTHER=0
+
+
+Nest stats
+----------
+TASK_IMPATIENT=0
+PROMOTED_TO_PRIMARY=0
+PROMOTED_TO_RESERVED=0
+DEMOTED_TO_RESERVED=0
+RESERVED_AT_CAPACITY=0
+SCHEDULED_COMPACTION=0
+CANCELLED_COMPACTION=0
+EAGERLY_COMPACTED=0
+CALLBACK_COMPACTED=0
+
+
+SLUG stats
+----------
+SLUG_NEST=0
+SLUG_BYPASS=2
+
+
+Consume stats
+-------------
+CONSUMED=0
+NOT_CONSUMED=48
+
+
+
+Masks
+-----
+PRIMARY  ( 0): | ------------------------------------------------ |
+RESERVED ( 0): | ------------------------------------------------ |
+OTHER    ( 0): | ------------------------------------------------ |
+IDLE     ( 0): | ------------------------------------------------ |
+
+
+
+
+
+Wakeup stats
+------------
+WAKEUP_ATTACHED=2000
+WAKEUP_PREV_PRIMARY=117
+WAKEUP_FULLY_IDLE_PRIMARY=0
+WAKEUP_ANY_IDLE_PRIMARY=470
+WAKEUP_FULLY_IDLE_RESERVE=0
+WAKEUP_ANY_IDLE_RESERVE=23
+WAKEUP_IDLE_OTHER=36
+
+
+Nest stats
+----------
+TASK_IMPATIENT=16
+PROMOTED_TO_PRIMARY=30
+PROMOTED_TO_RESERVED=18
+DEMOTED_TO_RESERVED=9
+RESERVED_AT_CAPACITY=22
+SCHEDULED_COMPACTION=2595
+CANCELLED_COMPACTION=2587
+EAGERLY_COMPACTED=0
+CALLBACK_COMPACTED=20
+
+
+SLUG stats
+----------
+SLUG_NEST=2646
+SLUG_BYPASS=2874
+
+
+Consume stats
+-------------
+CONSUMED=1628
+NOT_CONSUMED=279058
+
+
+
+Masks
+-----
+PRIMARY  ( 0): | ------------------------------------------------ |
+RESERVED ( 5): | -*-*--*----**----------------------------------- |
+OTHER    (43): | *-*-**-****--*********************************** |
+IDLE     (30): | ----------*----*****-******************-******-- |
+
+
+

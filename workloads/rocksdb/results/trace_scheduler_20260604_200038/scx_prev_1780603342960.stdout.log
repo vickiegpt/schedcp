@@ -1,0 +1,3 @@
+local=4 select_fail=0 prev_cpu=5 idle_cpu=0
+local=1719 select_fail=0 prev_cpu=1713 idle_cpu=6
+local=7438 select_fail=0 prev_cpu=7343 idle_cpu=95

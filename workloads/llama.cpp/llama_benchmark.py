@@ -83,7 +83,10 @@ def extract_metrics(benchmark_result):
         avg_ns = obj.get("avg_ns", 0)
         n_tokens = obj.get(n_tokens_key, 0)
         try:
-            return (avg_ns * n_tokens) / 1e9  # convert ns-per-token × tokens → seconds
+            if avg_ns:
+                return avg_ns / 1e9
+            avg_ts = obj.get("avg_ts", 0)
+            return (n_tokens / avg_ts) if avg_ts else 0.0
         except Exception:
             return 0.0
 

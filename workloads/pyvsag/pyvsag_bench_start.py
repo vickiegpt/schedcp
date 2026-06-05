@@ -11,16 +11,22 @@ import json
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 from pathlib import Path
 import argparse
 import traceback
 
 # Add the scheduler module to the path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'scheduler')))
+repo_root = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(repo_root / 'scheduler'))
+sys.path.append(str(repo_root / 'include'))
 
 from scheduler_runner import SchedulerRunner, SchedulerBenchmark
+from schedcp_slug_marker import (
+    slug_mark_balanced_bb,
+    slug_mark_read_bb,
+    slug_mark_write_bb,
+)
 
 # Try to import pyvsag and numpy
 try:
@@ -115,7 +121,9 @@ class PyVSAGBenchmarkTester(SchedulerBenchmark):
         index = pyvsag.Index(self.test_params["index_type"], index_params)
         
         build_start = time.time()
+        slug_mark_write_bb()
         index.build(vectors=data, ids=ids, num_elements=num_elements, dim=dim)
+        slug_mark_balanced_bb()
         build_time = time.time() - build_start
         
         return index, build_time
@@ -129,6 +137,7 @@ class PyVSAGBenchmarkTester(SchedulerBenchmark):
         
         search_times = []
         total_results = 0
+        slug_mark_read_bb()
         
         # Warmup
         for i in range(min(10, len(queries))):
@@ -168,6 +177,7 @@ class PyVSAGBenchmarkTester(SchedulerBenchmark):
         search_params = json.dumps({
             "hnsw": {"ef_search": self.test_params["ef_search"]}
         })
+        slug_mark_read_bb()
         
         if ground_truth is None:
             # Simple recall test: search for vectors that are in the index
@@ -276,10 +286,12 @@ import time
 
 # Add the scheduler module to the path
 sys.path.append('{os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "scheduler"))}')
+sys.path.append('{str(repo_root / "include")}')
 
 try:
     import pyvsag
     import numpy as np
+    from schedcp_slug_marker import slug_mark_balanced_bb, slug_mark_read_bb, slug_mark_write_bb
     
     # Import the class directly by recreating it here
     from scheduler_runner import SchedulerRunner, SchedulerBenchmark
@@ -320,7 +332,9 @@ try:
             index = pyvsag.Index(self.test_params["index_type"], index_params)
             
             build_start = time.time()
+            slug_mark_write_bb()
             index.build(vectors=data, ids=ids, num_elements=num_elements, dim=dim)
+            slug_mark_balanced_bb()
             build_time = time.time() - build_start
             
             return index, build_time
@@ -333,6 +347,7 @@ try:
             
             search_times = []
             total_results = 0
+            slug_mark_read_bb()
             
             # Warmup
             for i in range(min(10, len(queries))):
@@ -371,6 +386,7 @@ try:
             search_params = json.dumps({{
                 "hnsw": {{"ef_search": self.test_params["ef_search"]}}
             }})
+            slug_mark_read_bb()
             
             if ground_truth is None:
                 # Simple recall test: search for vectors that are in the index
@@ -481,12 +497,14 @@ except Exception as e:
             except:
                 pass
     
-    def run_all_pyvsag_benchmarks(self, production_only: bool = True) -> dict:
+    def run_all_pyvsag_benchmarks(self, production_only: bool = True,
+                                  scheduler_names: list = None) -> dict:
         """
         Run PyVSAG benchmarks for all schedulers.
         
         Args:
             production_only: Only test production-ready schedulers
+            scheduler_names: Optional explicit scheduler list to test
             
         Returns:
             Dictionary mapping scheduler names to benchmark results
@@ -498,7 +516,10 @@ except Exception as e:
         results["default"] = self.run_pyvsag_benchmark()
         
         # Test each scheduler
-        schedulers = self.runner.get_available_schedulers(production_only)
+        schedulers = scheduler_names
+        if schedulers is None:
+            schedulers = self.runner.get_available_schedulers(production_only)
+
         for scheduler_name in schedulers:
             try:
                 print(f"\nTesting scheduler: {scheduler_name}")
@@ -633,6 +654,10 @@ except Exception as e:
         figure_path = os.path.join(self.results_dir, "pyvsag_scheduler_performance.png")
         plt.savefig(figure_path, dpi=300, bbox_inches='tight')
         print(f"Performance figure saved to {figure_path}")
+
+        pdf_path = os.path.join(self.results_dir, "pyvsag_scheduler_performance.pdf")
+        plt.savefig(pdf_path, format='pdf', bbox_inches='tight')
+        print(f"Performance PDF saved to {pdf_path}")
         
         # Print summary
         self.print_performance_summary(results)
@@ -682,6 +707,8 @@ def main():
                        help="Timeout in seconds")
     parser.add_argument("--scheduler", type=str, default=None,
                        help="Test specific scheduler only")
+    parser.add_argument("--schedulers", nargs="+", default=None,
+                       help="Explicit scheduler list to test after default")
     
     args = parser.parse_args()
     
@@ -712,8 +739,13 @@ def main():
         results = {args.scheduler: result}
     else:
         print("Starting PyVSAG ANN search scheduler performance tests...")
-        results = tester.run_all_pyvsag_benchmarks(production_only=args.production_only)
+        results = tester.run_all_pyvsag_benchmarks(
+            production_only=args.production_only,
+            scheduler_names=args.schedulers,
+        )
     
+    tester.save_results(results)
+
     # Generate figures
     tester.generate_performance_figures(results)
     

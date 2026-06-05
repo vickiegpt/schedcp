@@ -1,18 +1,22 @@
 .PHONY: all build build-llama build-cuda clean update help download-models test-quick test-full test-sharegpt bench-schedulers
 
 BUILD_DIR := build
+BUILD_STAMP := $(BUILD_DIR)/.dir
 LLAMA_DIR := llama.cpp
 BINARY := $(BUILD_DIR)/llama-cli
 
 all: build
 
-$(BUILD_DIR):
+$(BUILD_STAMP):
 	@mkdir -p $(BUILD_DIR)
+	@touch $(BUILD_STAMP)
 
-build: $(BUILD_DIR)
+build: $(BUILD_STAMP)
 	@echo "Building llama.cpp..."
 	@cd $(LLAMA_DIR) && cmake -B ../$(BUILD_DIR) . \
 		-DCMAKE_BUILD_TYPE=Release \
+		-DLLAMA_CURL=OFF \
+		-DGGML_CCACHE=OFF \
 		-DGGML_CUDA=OFF \
 		-DGGML_METAL=OFF \
 		-DGGML_VULKAN=OFF \
@@ -28,7 +32,7 @@ METAL ?= OFF
 VULKAN ?= OFF
 JOBS ?= $(shell nproc)
 
-build-llama: $(BUILD_DIR)
+build-llama: $(BUILD_STAMP)
 	@echo "Building llama.cpp..."
 	@echo "  Build type: $(BUILD_TYPE)"
 	@echo "  CUDA support: $(CUDA)"
@@ -37,6 +41,8 @@ build-llama: $(BUILD_DIR)
 	@echo "  Parallel jobs: $(JOBS)"
 	@cd $(LLAMA_DIR) && cmake -B ../$(BUILD_DIR) . \
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
+		-DLLAMA_CURL=OFF \
+		-DGGML_CCACHE=OFF \
 		-DGGML_CUDA=$(CUDA) \
 		-DGGML_METAL=$(METAL) \
 		-DGGML_VULKAN=$(VULKAN) \
@@ -61,6 +67,8 @@ build-cuda:
 	@cd $(LLAMA_DIR) && CC=gcc-12 CXX=g++-12 CMAKE_CUDA_COMPILER=/usr/local/cuda-12.9/bin/nvcc \
 		cmake -B ../$(BUILD_DIR) . \
 		-DCMAKE_BUILD_TYPE=Release \
+		-DLLAMA_CURL=OFF \
+		-DGGML_CCACHE=OFF \
 		-DGGML_CUDA=ON \
 		-DGGML_METAL=OFF \
 		-DGGML_VULKAN=OFF \
@@ -89,6 +97,8 @@ build-cuda-no-vmm:
 	@cd $(LLAMA_DIR) && CC=gcc-12 CXX=g++-12 CMAKE_CUDA_COMPILER=/usr/local/cuda-12.9/bin/nvcc \
 		cmake -B ../$(BUILD_DIR) . \
 		-DCMAKE_BUILD_TYPE=Release \
+		-DLLAMA_CURL=OFF \
+		-DGGML_CCACHE=OFF \
 		-DGGML_CUDA=ON \
 		-DGGML_CUDA_NO_VMM=ON \
 		-DCMAKE_CUDA_HOST_COMPILER=g++-12 \

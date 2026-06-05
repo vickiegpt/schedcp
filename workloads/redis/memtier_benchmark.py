@@ -328,35 +328,35 @@ class MemtierBenchmark:
         
         # Define test configurations with different workload patterns
         benchmarks = [
-            # {
-            #     "name": "mixed_1_10",
-            #     "args": base_args + ["--ratio", "1:10", "-n", str(requests)]
-            # },
-            # {
-            #     "name": "mixed_10_1",
-            #     "args": base_args + ["--ratio", "10:1", "-n", str(requests)]
-            # },
-            # {
-            #     "name": "pipeline_16",
-            #     "args": ["-p", "6379", "-c", str(clients), "-t", str(threads), 
-            #             "-d", str(data_size), "--pipeline", "16", "--key-pattern", key_pattern,
-            #             "--key-maximum", str(key_maximum), "--ratio", ratio, 
-            #             "-n", str(requests), "--hide-histogram"]
-            # },
-            # {
-            #     "name": "sequential_pattern",
-            #     "args": ["-p", "6379", "-c", str(clients), "-t", str(threads),
-            #             "-d", str(data_size), "--pipeline", str(pipeline), "--key-pattern", "S:S",
-            #             "--key-maximum", str(key_maximum), "--ratio", ratio,
-            #             "-n", str(requests), "--hide-histogram"]
-            # },
-            # {
-            #     "name": "gaussian_pattern",
-            #     "args": ["-p", "6379", "-c", str(clients), "-t", str(threads),
-            #             "-d", str(data_size), "--pipeline", str(pipeline), "--key-pattern", "G:G",
-            #             "--key-maximum", str(key_maximum), "--ratio", ratio,
-            #             "-n", str(requests), "--hide-histogram"]
-            # },
+            {
+                "name": "mixed_1_10",
+                "args": base_args + ["--ratio", "1:10", "-n", str(requests)]
+            },
+            {
+                "name": "mixed_10_1",
+                "args": base_args + ["--ratio", "10:1", "-n", str(requests)]
+            },
+            {
+                "name": "pipeline_16",
+                "args": ["-p", "6379", "-c", str(clients), "-t", str(threads),
+                        "-d", str(data_size), "--pipeline", "16", "--key-pattern", key_pattern,
+                        "--key-maximum", str(key_maximum), "--ratio", ratio,
+                        "-n", str(requests), "--hide-histogram"]
+            },
+            {
+                "name": "sequential_pattern",
+                "args": ["-p", "6379", "-c", str(clients), "-t", str(threads),
+                        "-d", str(data_size), "--pipeline", str(pipeline), "--key-pattern", "S:S",
+                        "--key-maximum", str(key_maximum), "--ratio", ratio,
+                        "-n", str(requests), "--hide-histogram"]
+            },
+            {
+                "name": "gaussian_pattern",
+                "args": ["-p", "6379", "-c", str(clients), "-t", str(threads),
+                        "-d", str(data_size), "--pipeline", str(pipeline), "--key-pattern", "G:G",
+                        "--key-maximum", str(key_maximum), "--ratio", ratio,
+                        "-n", str(requests), "--hide-histogram"]
+            },
             {
                 "name": "advanced_gaussian_random",
                 "args": ["-p", "6379", "-c", str(clients), "-t", str(threads),

@@ -23,6 +23,8 @@
 #include <vector>
 #include <random>
 
+#include "../../include/schedcp_slug_marker.h"
+
 // Forward declarations for types used in thread functions
 struct ThreadStats {
   size_t bytes_processed = 0;
@@ -126,6 +128,7 @@ inline void reader_thread(void *buffer, size_t buffer_size, size_t block_size,
   }
 
   // Thread started silently
+  SLUG_MARK_READ_BB();
 
   while (!stop_flag.load(std::memory_order_relaxed)) {
     if (rate_limiter) {
@@ -179,6 +182,7 @@ inline void writer_thread(void *buffer, size_t buffer_size, size_t block_size,
   }
 
   // Thread started silently
+  SLUG_MARK_WRITE_BB();
 
   while (!stop_flag.load(std::memory_order_relaxed)) {
     if (rate_limiter) {
@@ -232,6 +236,7 @@ inline void device_reader_thread(int fd, size_t file_size, size_t block_size,
   }
 
   // Thread started silently
+  SLUG_MARK_READ_BB();
 
   while (!stop_flag.load(std::memory_order_relaxed)) {
     if (rate_limiter) {
@@ -281,6 +286,7 @@ inline void device_writer_thread(int fd, size_t file_size, size_t block_size,
   }
 
   // Thread started silently
+  SLUG_MARK_WRITE_BB();
 
   while (!stop_flag.load(std::memory_order_relaxed)) {
     if (rate_limiter) {
@@ -329,6 +335,7 @@ inline void mmap_reader_thread(void *mapped_area, size_t file_size, size_t block
   }
 
   // Thread started silently
+  SLUG_MARK_READ_BB();
 
   while (!stop_flag.load(std::memory_order_relaxed)) {
     if (rate_limiter) {
@@ -372,6 +379,7 @@ inline void mmap_writer_thread(void *mapped_area, size_t file_size, size_t block
   }
 
   // Thread started silently
+  SLUG_MARK_WRITE_BB();
 
   while (!stop_flag.load(std::memory_order_relaxed)) {
     if (rate_limiter) {

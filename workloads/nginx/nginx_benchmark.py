@@ -9,16 +9,31 @@ import psutil
 import os
 import sys
 import re
+import argparse
+import shutil
 from datetime import datetime
+from pathlib import Path
+
+repo_root = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(repo_root / "scheduler"))
+
+from scheduler_runner import SchedulerRunner
 
 class NginxBenchmark:
-    def __init__(self, nginx_dir="nginx", wrk2_dir="wrk2", results_dir="results"):
+    def __init__(self, nginx_dir="nginx", wrk2_dir="wrk2", results_dir="results",
+                 scheduler_runner=None):
         self.nginx_dir = nginx_dir
         self.wrk2_dir = wrk2_dir
         self.results_dir = results_dir
         self.nginx_binary = os.path.join(nginx_dir, "objs", "nginx")
         self.nginx_config = os.path.abspath("nginx-local.conf")
-        self.wrk2_binary = os.path.join(wrk2_dir, "wrk")
+        self.wrk_binary = shutil.which("wrk")
+        self.load_tool = "wrk"
+        if not self.wrk_binary:
+            self.wrk_binary = os.path.join(wrk2_dir, "wrk")
+            self.load_tool = "wrk2"
+        self.runner = scheduler_runner or SchedulerRunner()
+        self.nginx_process = None
         
         os.makedirs(results_dir, exist_ok=True)
         
@@ -45,17 +60,17 @@ class NginxBenchmark:
         else:
             print(f"✓ Nginx config found at {self.nginx_config}")
         
-        # Check wrk2 binary
-        if not os.path.exists(self.wrk2_binary):
-            print(f"ERROR: wrk2 binary not found at {self.wrk2_binary}")
-            print(f"Expected path: {os.path.abspath(self.wrk2_binary)}")
+        # Check HTTP load generator binary
+        if not os.path.exists(self.wrk_binary):
+            print(f"ERROR: load generator not found at {self.wrk_binary}")
+            print(f"Expected path: {os.path.abspath(self.wrk_binary)}")
             if os.path.exists(self.wrk2_dir):
                 print(f"Files in {self.wrk2_dir}: {os.listdir(self.wrk2_dir)}")
             else:
                 print(f"Directory {self.wrk2_dir} does not exist")
             sys.exit(1)
         else:
-            print(f"✓ wrk2 binary found at {self.wrk2_binary}")
+            print(f"✓ {self.load_tool} binary found at {self.wrk_binary}")
         
         # Check HTML directory
         html_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "html")
@@ -81,23 +96,23 @@ class NginxBenchmark:
         print(f"Running command: {' '.join(cmd)}")
         
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-            print(f"Nginx command exit code: {result.returncode}")
-            
-            if result.stdout:
-                print(f"Nginx stdout: {result.stdout}")
-            if result.stderr:
-                print(f"Nginx stderr: {result.stderr}")
-                
-            if result.returncode != 0:
-                print(f"ERROR: Nginx failed to start. Return code: {result.returncode}")
-                return False
-                
+            self.nginx_process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+
             time.sleep(2)
+
+            if self.nginx_process.poll() is not None:
+                print(f"ERROR: Nginx exited early. Return code: {self.nginx_process.returncode}")
+                self.nginx_process = None
+                return False
             
             # Check if Nginx process is running
             try:
-                ps_result = subprocess.run(["pgrep", "-f", "nginx"], capture_output=True, text=True)
+                ps_result = subprocess.run(["pgrep", "-x", "nginx"], capture_output=True, text=True)
                 if ps_result.returncode == 0:
                     print(f"✓ Nginx processes found: {ps_result.stdout.strip()}")
                 else:
@@ -137,6 +152,18 @@ class NginxBenchmark:
         print("Stopping any existing Nginx processes...")
         
         # Try graceful shutdown first
+        if self.nginx_process and self.nginx_process.poll() is None:
+            try:
+                self.nginx_process.terminate()
+                self.nginx_process.wait(timeout=5)
+                print("✓ Terminated managed Nginx process")
+            except subprocess.TimeoutExpired:
+                self.nginx_process.kill()
+                self.nginx_process.wait(timeout=5)
+                print("✓ Killed managed Nginx process")
+            finally:
+                self.nginx_process = None
+
         try:
             result = subprocess.run([self.nginx_binary, "-s", "quit", "-c", self.nginx_config], 
                           capture_output=True, text=True, timeout=5)
@@ -149,7 +176,7 @@ class NginxBenchmark:
         
         # Force kill if still running
         try:
-            result = subprocess.run(["pkill", "-f", "nginx"], capture_output=True, text=True, timeout=5)
+            result = subprocess.run(["pkill", "-x", "nginx"], capture_output=True, text=True, timeout=5)
             if result.returncode == 0:
                 print("✓ Force killed any remaining nginx processes")
         except Exception as e:
@@ -167,16 +194,25 @@ class NginxBenchmark:
         start_cpu = psutil.cpu_percent(interval=1)
         start_mem = psutil.virtual_memory().percent
         
-        # Run wrk2 benchmark
-        cmd = [
-            self.wrk2_binary,
-            f"-t{threads}",
-            f"-c{connections}", 
-            f"-d{duration}s",
-            f"-R{rate}",
-            "--latency",
-            url
-        ]
+        if self.load_tool == "wrk2":
+            cmd = [
+                self.wrk_binary,
+                f"-t{threads}",
+                f"-c{connections}",
+                f"-d{duration}s",
+                f"-R{rate}",
+                "--latency",
+                url
+            ]
+        else:
+            cmd = [
+                self.wrk_binary,
+                f"-t{threads}",
+                f"-c{connections}",
+                f"-d{duration}s",
+                "--latency",
+                url
+            ]
         
         print(f"Running command: {' '.join(cmd)}")
         
@@ -185,17 +221,17 @@ class NginxBenchmark:
             print(f"wrk2 exit code: {result.returncode}")
             
             if result.returncode != 0:
-                print(f"ERROR: wrk2 failed with return code {result.returncode}")
+                print(f"ERROR: {self.load_tool} failed with return code {result.returncode}")
                 if result.stderr:
-                    print(f"wrk2 stderr: {result.stderr}")
+                    print(f"{self.load_tool} stderr: {result.stderr}")
             else:
-                print("✓ wrk2 completed successfully")
+                print(f"✓ {self.load_tool} completed successfully")
                 
         except subprocess.TimeoutExpired:
-            print(f"ERROR: wrk2 benchmark timed out after {duration + 30} seconds")
+            print(f"ERROR: {self.load_tool} benchmark timed out after {duration + 30} seconds")
             result = subprocess.CompletedProcess(cmd, -1, "", "Timeout")
         except Exception as e:
-            print(f"ERROR: wrk2 benchmark failed with exception: {e}")
+            print(f"ERROR: {self.load_tool} benchmark failed with exception: {e}")
             result = subprocess.CompletedProcess(cmd, -1, "", str(e))
         
         # End monitoring
@@ -239,11 +275,11 @@ class NginxBenchmark:
         
         # Parse latency statistics
         latency_patterns = [
-            (r'50.000%\s+(\d+\.?\d*)(us|ms)', 'latency_p50'),
-            (r'75.000%\s+(\d+\.?\d*)(us|ms)', 'latency_p75'),
-            (r'90.000%\s+(\d+\.?\d*)(us|ms)', 'latency_p90'),
-            (r'99.000%\s+(\d+\.?\d*)(us|ms)', 'latency_p99'),
-            (r'99.900%\s+(\d+\.?\d*)(us|ms)', 'latency_p999'),
+            (r'(?:50\.000%|50%)\s+(\d+\.?\d*)(us|ms|s)', 'latency_p50'),
+            (r'(?:75\.000%|75%)\s+(\d+\.?\d*)(us|ms|s)', 'latency_p75'),
+            (r'(?:90\.000%|90%)\s+(\d+\.?\d*)(us|ms|s)', 'latency_p90'),
+            (r'(?:99\.000%|99%)\s+(\d+\.?\d*)(us|ms|s)', 'latency_p99'),
+            (r'(?:99\.900%|99\.9%)\s+(\d+\.?\d*)(us|ms|s)', 'latency_p999'),
         ]
         
         for pattern, key in latency_patterns:
@@ -254,6 +290,8 @@ class NginxBenchmark:
                 # Convert to milliseconds
                 if unit == 'us':
                     value = value / 1000
+                elif unit == 's':
+                    value = value * 1000
                 metrics[key] = value
         
         # Parse total requests
@@ -276,12 +314,34 @@ class NginxBenchmark:
         
         return metrics
     
-    def run_comprehensive_benchmark(self):
-        """Run comprehensive Nginx benchmarks"""
-        if not self.start_nginx():
-            return None
-        
-        benchmarks = [
+    def _benchmark_matrix(self, quick=False):
+        """Return the wrk2 load matrix."""
+        if quick:
+            return [
+                {
+                    "name": "low_load_test",
+                    "threads": 2,
+                    "connections": 10,
+                    "duration": 10,
+                    "rate": 100
+                },
+                {
+                    "name": "medium_load_test",
+                    "threads": 4,
+                    "connections": 50,
+                    "duration": 10,
+                    "rate": 1000
+                },
+                {
+                    "name": "high_load_test",
+                    "threads": 8,
+                    "connections": 100,
+                    "duration": 10,
+                    "rate": 5000
+                }
+            ]
+
+        return [
             {
                 "name": "low_load_test",
                 "threads": 2,
@@ -318,6 +378,22 @@ class NginxBenchmark:
                 "rate": 20000
             }
         ]
+
+    def run_comprehensive_benchmark(self, scheduler_name=None, quick=False):
+        """Run comprehensive Nginx benchmarks"""
+        scheduler_proc = None
+        scheduler_label = scheduler_name or "default"
+
+        if scheduler_name:
+            print(f"Starting scheduler: {scheduler_name}")
+            scheduler_proc = self.runner.start_scheduler(scheduler_name)
+
+        if not self.start_nginx():
+            if scheduler_proc:
+                self.runner.stop_scheduler(proc=scheduler_proc)
+            return None
+
+        benchmarks = self._benchmark_matrix(quick)
         
         results = []
         
@@ -343,8 +419,10 @@ class NginxBenchmark:
                         "duration": benchmark["duration"],
                         "target_rate": benchmark["rate"]
                     }
+                    result["scheduler"] = scheduler_label
                 else:
                     print(f"⚠ Benchmark {benchmark['name']} failed, but continuing...")
+                    result["scheduler"] = scheduler_label
                 
                 results.append(result)
                 time.sleep(2)  # Brief pause between tests
@@ -355,6 +433,8 @@ class NginxBenchmark:
         finally:
             print("\nCleaning up...")
             self.stop_nginx()
+            if scheduler_proc:
+                self.runner.stop_scheduler(proc=scheduler_proc)
         
         return results
     
@@ -394,45 +474,166 @@ class NginxBenchmark:
         
         return summary
 
+    def run_scheduler_suite(self, schedulers=None, include_default=True, quick=False):
+        """Run the benchmark for default and an explicit scheduler list."""
+        schedulers = schedulers or []
+        results = {}
+
+        if include_default:
+            print("\n=== Scheduler: default ===")
+            results["default"] = self.run_comprehensive_benchmark(
+                scheduler_name=None,
+                quick=quick,
+            ) or []
+            self.save_results(results)
+
+        for scheduler_name in schedulers:
+            print(f"\n=== Scheduler: {scheduler_name} ===")
+            results[scheduler_name] = self.run_comprehensive_benchmark(
+                scheduler_name=scheduler_name,
+                quick=quick,
+            ) or []
+            self.save_results(results)
+
+        return results
+
+    def generate_comparison_figure(self, results_by_scheduler):
+        """Generate PNG and PDF summaries for scheduler comparison results."""
+        try:
+            import matplotlib.pyplot as plt
+            import numpy as np
+        except ImportError as e:
+            print(f"Could not generate figures: {e}")
+            return None
+
+        schedulers = []
+        avg_rps = []
+        avg_p99 = []
+
+        for scheduler_name, results in results_by_scheduler.items():
+            successful = [
+                r for r in results
+                if r.get("return_code") == 0 and r.get("metrics")
+            ]
+            rps_values = [
+                r["metrics"]["requests_per_second"] for r in successful
+                if "requests_per_second" in r["metrics"]
+            ]
+            p99_values = [
+                r["metrics"]["latency_p99"] for r in successful
+                if "latency_p99" in r["metrics"]
+            ]
+            if not rps_values and not p99_values:
+                continue
+
+            schedulers.append(scheduler_name)
+            avg_rps.append(float(np.mean(rps_values)) if rps_values else 0.0)
+            avg_p99.append(float(np.mean(p99_values)) if p99_values else 0.0)
+
+        if not schedulers:
+            print("No successful Nginx results to plot")
+            return None
+
+        x = np.arange(len(schedulers))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+        ax1.bar(x, avg_rps, color="#4C78A8")
+        ax1.set_title("Average Throughput")
+        ax1.set_ylabel("Requests/sec")
+        ax1.set_xticks(x)
+        ax1.set_xticklabels(schedulers, rotation=30, ha="right")
+        ax1.grid(True, axis="y", alpha=0.3)
+
+        ax2.bar(x, avg_p99, color="#F58518")
+        ax2.set_title("Average P99 Latency")
+        ax2.set_ylabel("ms")
+        ax2.set_xticks(x)
+        ax2.set_xticklabels(schedulers, rotation=30, ha="right")
+        ax2.grid(True, axis="y", alpha=0.3)
+
+        fig.suptitle("Nginx Scheduler Comparison")
+        fig.tight_layout()
+
+        png_path = os.path.join(self.results_dir, "nginx_scheduler_comparison.png")
+        pdf_path = os.path.join(self.results_dir, "nginx_scheduler_comparison.pdf")
+        fig.savefig(png_path, dpi=300, bbox_inches="tight")
+        fig.savefig(pdf_path, format="pdf", bbox_inches="tight")
+        plt.close(fig)
+
+        print(f"Comparison figure saved to {png_path}")
+        print(f"Comparison PDF saved to {pdf_path}")
+        return pdf_path
+
+    def print_suite_summary(self, results_by_scheduler):
+        """Print compact benchmark summaries for all schedulers."""
+        print("\n" + "=" * 50)
+        print("BENCHMARK SUMMARY")
+        print("=" * 50)
+
+        for scheduler_name, results in results_by_scheduler.items():
+            if not results:
+                print(f"\n{scheduler_name}: no benchmark results")
+                continue
+
+            summary = self.generate_summary(results)
+            print(f"\n{scheduler_name}")
+            print(f"  Total tests: {summary['total_tests']}")
+            print(f"  Successful: {summary['successful_tests']}")
+            print(f"  Failed: {summary['failed_tests']}")
+            print(f"  Total duration: {summary['total_duration']:.2f} seconds")
+
+            for test in summary["test_summary"]:
+                metrics = test.get("metrics", {})
+                line = f"  {test['test_name']}: {test['status']}"
+                if "requests_per_second" in metrics:
+                    line += f", RPS={metrics['requests_per_second']:,.0f}"
+                if "latency_p99" in metrics:
+                    line += f", P99={metrics['latency_p99']:.2f}ms"
+                print(line)
+
 def main():
     try:
+        parser = argparse.ArgumentParser(description="Run Nginx wrk2 scheduler benchmarks")
+        parser.add_argument("--scheduler", default=None,
+                            help="Run one scheduler after default")
+        parser.add_argument("--schedulers", nargs="+", default=None,
+                            help="Run explicit scheduler list after default")
+        parser.add_argument("--skip-default", action="store_true",
+                            help="Do not run the default Linux scheduler baseline")
+        parser.add_argument("--quick", action="store_true",
+                            help="Use shorter 10 second wrk2 tests")
+        parser.add_argument("--results-dir", default="results",
+                            help="Directory to store benchmark results")
+        parser.add_argument("--test", action="store_true",
+                            help="Only test Nginx startup and shutdown")
+        args = parser.parse_args()
+
         print("Initializing NginxBenchmark...")
-        benchmark = NginxBenchmark()
-        
+        benchmark = NginxBenchmark(results_dir=args.results_dir)
+
+        if args.test:
+            print("Testing Nginx startup...")
+            if benchmark.start_nginx():
+                print("Nginx started successfully")
+                benchmark.stop_nginx()
+                print("Nginx stopped successfully")
+                return
+            print("Failed to start Nginx")
+            sys.exit(1)
+
         print("Starting Nginx benchmark suite with wrk2...")
         print("=" * 50)
-        
-        results = benchmark.run_comprehensive_benchmark()
-        
-        if results and len(results) > 0:
-            # Save detailed results
-            results_file = benchmark.save_results(results)
-            
-            # Generate and display summary
-            summary = benchmark.generate_summary(results)
-            
-            print("\n" + "=" * 50)
-            print("BENCHMARK SUMMARY")
-            print("=" * 50)
-            print(f"Total tests: {summary['total_tests']}")
-            print(f"Successful: {summary['successful_tests']}")
-            print(f"Failed: {summary['failed_tests']}")
-            print(f"Total duration: {summary['total_duration']:.2f} seconds")
-            print(f"Average CPU usage: {summary['average_cpu_usage']:.2f}%")
-            print(f"Average memory usage: {summary['average_memory_usage']:.2f}%")
-            
-            print("\nTest Results:")
-            for test in summary['test_summary']:
-                status_symbol = "✓" if test['status'] == 'success' else "✗"
-                print(f"  {status_symbol} {test['test_name']}: {test['duration']:.2f}s")
-                
-                if 'requests_per_second' in test.get('metrics', {}):
-                    print(f"    RPS: {test['metrics']['requests_per_second']:,.0f}")
-                if 'latency_p99' in test.get('metrics', {}):
-                    print(f"    P99 Latency: {test['metrics']['latency_p99']:.2f}ms")
-                if 'config' in test:
-                    print(f"    Target Rate: {test['config']['target_rate']} RPS, Connections: {test['config']['connections']}")
-        
+
+        schedulers = args.schedulers or ([] if args.scheduler is None else [args.scheduler])
+        results = benchmark.run_scheduler_suite(
+            schedulers=schedulers,
+            include_default=not args.skip_default,
+            quick=args.quick,
+        )
+
+        if any(results.values()):
+            benchmark.print_suite_summary(results)
+            benchmark.generate_comparison_figure(results)
         else:
             print("No benchmark results to show")
             sys.exit(1)
@@ -447,18 +648,4 @@ def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "--test":
-        # Simple test mode
-        print("Testing nginx_benchmark.py...")
-        benchmark = NginxBenchmark()
-        print("✓ Benchmark object created successfully")
-        print("Testing nginx startup...")
-        if benchmark.start_nginx():
-            print("✓ Nginx started successfully")
-            benchmark.stop_nginx()
-            print("✓ Nginx stopped successfully")
-        else:
-            print("✗ Failed to start nginx")
-    else:
-        main()
+    main()

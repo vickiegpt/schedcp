@@ -374,12 +374,22 @@ class ProcessManager:
             timeout: Timeout in seconds
         """
         try:
-            result = subprocess.run(
-                ["sudo", "pkill", "-f", "scx_"],
-                capture_output=True,
-                timeout=timeout
-            )
-            if result.returncode == 0:
+            repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+            scheduler_glob = os.path.join(repo_root, "scheduler", "sche_bin", "scx_*")
+            scheduler_names = sorted({os.path.basename(path)[:15]
+                                      for path in glob.glob(scheduler_glob)
+                                      if os.path.isfile(path)})
+            killed = False
+
+            for name in scheduler_names:
+                result = subprocess.run(
+                    ["sudo", "pkill", "-x", name],
+                    capture_output=True,
+                    timeout=timeout
+                )
+                killed = killed or result.returncode == 0
+
+            if killed:
                 print("[INFO] Successfully killed lingering scx processes")
             else:
                 print("[INFO] No lingering scx processes found")

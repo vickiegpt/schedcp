@@ -58,18 +58,20 @@ class SchedulerRunner:
                         name = sched.get("name")
                         if name:
                             schedulers[name] = {
-                                "binary": name,  # Use scheduler name as binary name
+                                "binary": sched.get("binary", name),
                                 "production": sched.get("production_ready", False),
                                 "description": sched.get("description", ""),
-                                "parameters": sched.get("tuning_parameters", {})
+                                "parameters": sched.get("tuning_parameters", {}),
+                                "args": sched.get("args", [])
                             }
                 elif isinstance(scheduler_list, dict):
                     for name, info in scheduler_list.items():
                         schedulers[name] = {
-                            "binary": name,  # Use scheduler name as binary name
+                            "binary": info.get("binary", name),
                             "production": info.get("production_ready", False),
                             "description": info.get("description", ""),
-                            "parameters": info.get("parameters", {})
+                            "parameters": info.get("parameters", {}),
+                            "args": info.get("args", [])
                         }
                 return schedulers
         except FileNotFoundError:
@@ -151,14 +153,21 @@ class SchedulerRunner:
             raise FileNotFoundError(f"Scheduler binary not found: {binary_path}")
         
         # Build command
+        scheduler_args = list(scheduler_info.get("args", []))
+
+        if args:
+            scheduler_args.extend(args)
+
+        self._ensure_bpf_pin_dirs(scheduler_args)
+
         cmd = ["sudo", binary_path]
         
         # Special handling for scx_layered - add --run-example if no config specified
-        if scheduler_name == "scx_layered" and (not args or not any("--config" in arg or "-c" in arg for arg in (args or []))):
+        if scheduler_name == "scx_layered" and not any("--config" in arg or "-c" in arg for arg in scheduler_args):
             cmd.append("--run-example")
         
-        if args:
-            cmd.extend(args)
+        if scheduler_args:
+            cmd.extend(scheduler_args)
         
         # Start scheduler process
         try:
@@ -185,6 +194,23 @@ class SchedulerRunner:
             
         except Exception as e:
             raise RuntimeError(f"Failed to start scheduler {scheduler_name}: {e}")
+
+    def _ensure_bpf_pin_dirs(self, args: List[str]):
+        """Create parent directories for scheduler BPF pin paths when configured."""
+        for idx, arg in enumerate(args):
+            if arg not in ("-H", "--slug-hint-map") or idx + 1 >= len(args):
+                continue
+
+            parent = os.path.dirname(args[idx + 1])
+            if not parent:
+                continue
+
+            subprocess.run(
+                ["sudo", "mkdir", "-p", parent],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False
+            )
     
     def stop_scheduler(self, scheduler_name: str = None, proc: subprocess.Popen = None):
         """

@@ -1,0 +1,50 @@
+{
+  "default": {
+    "scheduler": "default",
+    "command": "/root/schedcp/workloads/hpc-memory/hpc_memory_kernels --kernel=wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state --threads=64 --size-mib=256 --iterations=3 --slug-hint=pipeline",
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"kernel\": \"wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state\",\n    \"slug_hint\": \"pipeline\",\n    \"threads\": 64,\n    \"iterations\": 3,\n    \"size_mib\": 256\n  },\n  \"results\": [\n    {\"kernel\": \"wrf_stencil\", \"seconds\": 0.0966036, \"bandwidth_gb_s\": 65.33, \"bytes\": 6311116800, \"checksum\": 731.526},\n    {\"kernel\": \"gromacs_pairlist\", \"seconds\": 0.0454192, \"bandwidth_gb_s\": 106.383, \"bytes\": 4831838208, \"checksum\": 5698.58},\n    {\"kernel\": \"sst_sparse\", \"seconds\": 0.450654, \"bandwidth_gb_s\": 18.7632, \"bytes\": 8455716864, \"checksum\": 3456},\n    {\"kernel\": \"quantum_state\", \"seconds\": 0.0432796, \"bandwidth_gb_s\": 37.2141, \"bytes\": 1610612736, \"checksum\": 1.41408}\n  ]\n}\n",
+    "stderr": "",
+    "duration": 2.0698444843292236,
+    "timestamp": "2026-06-02T01:43:22.375267",
+    "hpc_memory": {
+      "config": {
+        "kernel": "wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state",
+        "slug_hint": "pipeline",
+        "threads": 64,
+        "iterations": 3,
+        "size_mib": 256
+      },
+      "results": [
+        {
+          "kernel": "wrf_stencil",
+          "seconds": 0.0966036,
+          "bandwidth_gb_s": 65.33,
+          "bytes": 6311116800,
+          "checksum": 731.526
+        },
+        {
+          "kernel": "gromacs_pairlist",
+          "seconds": 0.0454192,
+          "bandwidth_gb_s": 106.383,
+          "bytes": 4831838208,
+          "checksum": 5698.58
+        },
+        {
+          "kernel": "sst_sparse",
+          "seconds": 0.450654,
+          "bandwidth_gb_s": 18.7632,
+          "bytes": 8455716864,
+          "checksum": 3456
+        },
+        {
+          "kernel": "quantum_state",
+          "seconds": 0.0432796,
+          "bandwidth_gb_s": 37.2141,
+          "bytes": 1610612736,
+          "checksum": 1.41408
+        }
+      ]
+    }
+  }
+}

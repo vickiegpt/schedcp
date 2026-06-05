@@ -1,0 +1,13 @@
+scheduler,threads,read_ratio,bandwidth_mbps,execution_time,array_size_gb,duration
+default,32,0.0,21912.2,2.00021,0.25,2
+default,32,0.5,26210.5,2.00026,0.25,2
+default,32,1.0,40840.5,2.00019,0.25,2
+scx_nest,32,0.0,21814.8,2.00017,0.25,2
+scx_nest,32,0.5,26509.7,2.00029,0.25,2
+scx_nest,32,1.0,41140.5,2.00013,0.25,2
+scx_nest_slug_read,32,0.0,22046.5,2.00018,0.25,2
+scx_nest_slug_read,32,0.5,25607.3,2.00017,0.25,2
+scx_nest_slug_read,32,1.0,41425.4,2.00014,0.25,2
+scx_nest_slug_write,32,0.0,22142.1,2.00021,0.25,2
+scx_nest_slug_write,32,0.5,26197.7,2.00014,0.25,2
+scx_nest_slug_write,32,1.0,41763.4,2.00014,0.25,2

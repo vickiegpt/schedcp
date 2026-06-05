@@ -1,0 +1,57 @@
+{
+  "default": {
+    "scheduler": "default",
+    "command": "/root/schedcp/workloads/hpc-memory/hpc_memory_kernels --kernel=all --threads=48 --size-mib=128 --iterations=2 --slug-hint=pipeline",
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"kernel\": \"all\",\n    \"slug_hint\": \"pipeline\",\n    \"threads\": 48,\n    \"iterations\": 2,\n    \"size_mib\": 128\n  },\n  \"results\": [\n    {\"kernel\": \"stream_triad\", \"seconds\": 0.0583095, \"bandwidth_gb_s\": 18.4145, \"bytes\": 1073741824, \"checksum\": 6912},\n    {\"kernel\": \"wrf_stencil\", \"seconds\": 0.0447598, \"bandwidth_gb_s\": 46.8622, \"bytes\": 2097544192, \"checksum\": 1024},\n    {\"kernel\": \"gromacs_pairlist\", \"seconds\": 0.0225356, \"bandwidth_gb_s\": 71.4697, \"bytes\": 1610612736, \"checksum\": 5698.58},\n    {\"kernel\": \"sst_sparse\", \"seconds\": 0.115076, \"bandwidth_gb_s\": 24.4931, \"bytes\": 2818572288, \"checksum\": 2304},\n    {\"kernel\": \"quantum_state\", \"seconds\": 0.0215909, \"bandwidth_gb_s\": 24.8656, \"bytes\": 536870912, \"checksum\": 1.5604}\n  ]\n}\n",
+    "stderr": "",
+    "duration": 1.341404914855957,
+    "timestamp": "2026-06-01T22:40:42.707702",
+    "hpc_memory": {
+      "config": {
+        "kernel": "all",
+        "slug_hint": "pipeline",
+        "threads": 48,
+        "iterations": 2,
+        "size_mib": 128
+      },
+      "results": [
+        {
+          "kernel": "stream_triad",
+          "seconds": 0.0583095,
+          "bandwidth_gb_s": 18.4145,
+          "bytes": 1073741824,
+          "checksum": 6912
+        },
+        {
+          "kernel": "wrf_stencil",
+          "seconds": 0.0447598,
+          "bandwidth_gb_s": 46.8622,
+          "bytes": 2097544192,
+          "checksum": 1024
+        },
+        {
+          "kernel": "gromacs_pairlist",
+          "seconds": 0.0225356,
+          "bandwidth_gb_s": 71.4697,
+          "bytes": 1610612736,
+          "checksum": 5698.58
+        },
+        {
+          "kernel": "sst_sparse",
+          "seconds": 0.115076,
+          "bandwidth_gb_s": 24.4931,
+          "bytes": 2818572288,
+          "checksum": 2304
+        },
+        {
+          "kernel": "quantum_state",
+          "seconds": 0.0215909,
+          "bandwidth_gb_s": 24.8656,
+          "bytes": 536870912,
+          "checksum": 1.5604
+        }
+      ]
+    }
+  }
+}

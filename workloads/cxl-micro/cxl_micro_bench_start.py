@@ -11,7 +11,6 @@ import json
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 from pathlib import Path
 import argparse
@@ -503,6 +502,7 @@ class CXLMicroBenchmarkTester(SchedulerBenchmark):
                     ax.set_xlabel('Scheduler', fontsize=12)
                     
                     # Rotate x-axis labels for better readability
+                    ax.set_xticks(np.arange(len(scheduler_names)))
                     ax.set_xticklabels(scheduler_names, rotation=45, ha='right', fontsize=11)
                     
                     # Add grid
@@ -532,12 +532,16 @@ class CXLMicroBenchmarkTester(SchedulerBenchmark):
         plt.savefig(figure_path, dpi=300, bbox_inches='tight')
         print(f"Multi-scheduler parameter sweep figure saved to {figure_path}")
 
+        pdf_path = os.path.join(self.results_dir, "parameter_sweep_multi_schedulers.pdf")
+        plt.savefig(pdf_path, format='pdf', bbox_inches='tight')
+        print(f"Multi-scheduler parameter sweep PDF saved to {pdf_path}")
+
 
 def main():
     """Main function for CXL-micro scheduler testing"""
     parser = argparse.ArgumentParser(description="Test schedulers with CXL-micro double_bandwidth")
     parser.add_argument("--double-bandwidth-path", 
-                       default="/root/yunwei37/ai-os/workloads/cxl-micro/double_bandwidth",
+                       default=str(Path(__file__).resolve().parent / "double_bandwidth"),
                        help="Path to double_bandwidth binary")
     parser.add_argument("--results-dir", default="results", 
                        help="Directory to store results")

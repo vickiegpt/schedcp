@@ -1,0 +1,194 @@
+{
+  "default": {
+    "scheduler": "default",
+    "command": "/root/schedcp/workloads/hpc-memory/hpc_memory_kernels --kernel=wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state --threads=64 --size-mib=256 --iterations=3 --slug-hint=pipeline",
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"kernel\": \"wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state\",\n    \"slug_hint\": \"pipeline\",\n    \"threads\": 64,\n    \"iterations\": 3,\n    \"size_mib\": 256\n  },\n  \"results\": [\n    {\"kernel\": \"wrf_stencil\", \"seconds\": 0.0966036, \"bandwidth_gb_s\": 65.33, \"bytes\": 6311116800, \"checksum\": 731.526},\n    {\"kernel\": \"gromacs_pairlist\", \"seconds\": 0.0454192, \"bandwidth_gb_s\": 106.383, \"bytes\": 4831838208, \"checksum\": 5698.58},\n    {\"kernel\": \"sst_sparse\", \"seconds\": 0.450654, \"bandwidth_gb_s\": 18.7632, \"bytes\": 8455716864, \"checksum\": 3456},\n    {\"kernel\": \"quantum_state\", \"seconds\": 0.0432796, \"bandwidth_gb_s\": 37.2141, \"bytes\": 1610612736, \"checksum\": 1.41408}\n  ]\n}\n",
+    "stderr": "",
+    "duration": 2.0698444843292236,
+    "timestamp": "2026-06-02T01:43:22.375267",
+    "hpc_memory": {
+      "config": {
+        "kernel": "wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state",
+        "slug_hint": "pipeline",
+        "threads": 64,
+        "iterations": 3,
+        "size_mib": 256
+      },
+      "results": [
+        {
+          "kernel": "wrf_stencil",
+          "seconds": 0.0966036,
+          "bandwidth_gb_s": 65.33,
+          "bytes": 6311116800,
+          "checksum": 731.526
+        },
+        {
+          "kernel": "gromacs_pairlist",
+          "seconds": 0.0454192,
+          "bandwidth_gb_s": 106.383,
+          "bytes": 4831838208,
+          "checksum": 5698.58
+        },
+        {
+          "kernel": "sst_sparse",
+          "seconds": 0.450654,
+          "bandwidth_gb_s": 18.7632,
+          "bytes": 8455716864,
+          "checksum": 3456
+        },
+        {
+          "kernel": "quantum_state",
+          "seconds": 0.0432796,
+          "bandwidth_gb_s": 37.2141,
+          "bytes": 1610612736,
+          "checksum": 1.41408
+        }
+      ]
+    }
+  },
+  "scx_nest": {
+    "scheduler": "scx_nest",
+    "command": "/root/schedcp/workloads/hpc-memory/hpc_memory_kernels --kernel=wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state --threads=64 --size-mib=256 --iterations=3 --slug-hint=pipeline",
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"kernel\": \"wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state\",\n    \"slug_hint\": \"pipeline\",\n    \"threads\": 64,\n    \"iterations\": 3,\n    \"size_mib\": 256\n  },\n  \"results\": [\n    {\"kernel\": \"wrf_stencil\", \"seconds\": 0.103577, \"bandwidth_gb_s\": 60.9317, \"bytes\": 6311116800, \"checksum\": 731.526},\n    {\"kernel\": \"gromacs_pairlist\", \"seconds\": 0.0462552, \"bandwidth_gb_s\": 104.461, \"bytes\": 4831838208, \"checksum\": 5698.58},\n    {\"kernel\": \"sst_sparse\", \"seconds\": 0.471689, \"bandwidth_gb_s\": 17.9265, \"bytes\": 8455716864, \"checksum\": 3456},\n    {\"kernel\": \"quantum_state\", \"seconds\": 0.0441271, \"bandwidth_gb_s\": 36.4994, \"bytes\": 1610612736, \"checksum\": 1.41408}\n  ]\n}\n",
+    "stderr": "",
+    "duration": 4.284837961196899,
+    "timestamp": "2026-06-02T01:43:26.660412",
+    "hpc_memory": {
+      "config": {
+        "kernel": "wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state",
+        "slug_hint": "pipeline",
+        "threads": 64,
+        "iterations": 3,
+        "size_mib": 256
+      },
+      "results": [
+        {
+          "kernel": "wrf_stencil",
+          "seconds": 0.103577,
+          "bandwidth_gb_s": 60.9317,
+          "bytes": 6311116800,
+          "checksum": 731.526
+        },
+        {
+          "kernel": "gromacs_pairlist",
+          "seconds": 0.0462552,
+          "bandwidth_gb_s": 104.461,
+          "bytes": 4831838208,
+          "checksum": 5698.58
+        },
+        {
+          "kernel": "sst_sparse",
+          "seconds": 0.471689,
+          "bandwidth_gb_s": 17.9265,
+          "bytes": 8455716864,
+          "checksum": 3456
+        },
+        {
+          "kernel": "quantum_state",
+          "seconds": 0.0441271,
+          "bandwidth_gb_s": 36.4994,
+          "bytes": 1610612736,
+          "checksum": 1.41408
+        }
+      ]
+    }
+  },
+  "scx_nest_slug": {
+    "scheduler": "scx_nest_slug",
+    "command": "/root/schedcp/workloads/hpc-memory/hpc_memory_kernels --kernel=wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state --threads=64 --size-mib=256 --iterations=3 --slug-hint=pipeline",
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"kernel\": \"wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state\",\n    \"slug_hint\": \"pipeline\",\n    \"threads\": 64,\n    \"iterations\": 3,\n    \"size_mib\": 256\n  },\n  \"results\": [\n    {\"kernel\": \"wrf_stencil\", \"seconds\": 0.102941, \"bandwidth_gb_s\": 61.308, \"bytes\": 6311116800, \"checksum\": 731.526},\n    {\"kernel\": \"gromacs_pairlist\", \"seconds\": 0.0457111, \"bandwidth_gb_s\": 105.704, \"bytes\": 4831838208, \"checksum\": 5698.58},\n    {\"kernel\": \"sst_sparse\", \"seconds\": 0.469701, \"bandwidth_gb_s\": 18.0023, \"bytes\": 8455716864, \"checksum\": 3456},\n    {\"kernel\": \"quantum_state\", \"seconds\": 0.045317, \"bandwidth_gb_s\": 35.541, \"bytes\": 1610612736, \"checksum\": 1.41408}\n  ]\n}\n",
+    "stderr": "",
+    "duration": 4.167953968048096,
+    "timestamp": "2026-06-02T01:43:31.829366",
+    "hpc_memory": {
+      "config": {
+        "kernel": "wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state",
+        "slug_hint": "pipeline",
+        "threads": 64,
+        "iterations": 3,
+        "size_mib": 256
+      },
+      "results": [
+        {
+          "kernel": "wrf_stencil",
+          "seconds": 0.102941,
+          "bandwidth_gb_s": 61.308,
+          "bytes": 6311116800,
+          "checksum": 731.526
+        },
+        {
+          "kernel": "gromacs_pairlist",
+          "seconds": 0.0457111,
+          "bandwidth_gb_s": 105.704,
+          "bytes": 4831838208,
+          "checksum": 5698.58
+        },
+        {
+          "kernel": "sst_sparse",
+          "seconds": 0.469701,
+          "bandwidth_gb_s": 18.0023,
+          "bytes": 8455716864,
+          "checksum": 3456
+        },
+        {
+          "kernel": "quantum_state",
+          "seconds": 0.045317,
+          "bandwidth_gb_s": 35.541,
+          "bytes": 1610612736,
+          "checksum": 1.41408
+        }
+      ]
+    }
+  },
+  "scx_nest_slug_read": {
+    "scheduler": "scx_nest_slug_read",
+    "command": "/root/schedcp/workloads/hpc-memory/hpc_memory_kernels --kernel=wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state --threads=64 --size-mib=256 --iterations=3 --slug-hint=pipeline",
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"kernel\": \"wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state\",\n    \"slug_hint\": \"pipeline\",\n    \"threads\": 64,\n    \"iterations\": 3,\n    \"size_mib\": 256\n  },\n  \"results\": [\n    {\"kernel\": \"wrf_stencil\", \"seconds\": 0.108542, \"bandwidth_gb_s\": 58.1444, \"bytes\": 6311116800, \"checksum\": 731.526},\n    {\"kernel\": \"gromacs_pairlist\", \"seconds\": 0.045498, \"bandwidth_gb_s\": 106.199, \"bytes\": 4831838208, \"checksum\": 5698.58},\n    {\"kernel\": \"sst_sparse\", \"seconds\": 0.466204, \"bandwidth_gb_s\": 18.1374, \"bytes\": 8455716864, \"checksum\": 3456},\n    {\"kernel\": \"quantum_state\", \"seconds\": 0.0446314, \"bandwidth_gb_s\": 36.087, \"bytes\": 1610612736, \"checksum\": 1.41408}\n  ]\n}\n",
+    "stderr": "",
+    "duration": 4.1926257610321045,
+    "timestamp": "2026-06-02T01:43:37.022525",
+    "hpc_memory": {
+      "config": {
+        "kernel": "wrf_stencil,gromacs_pairlist,sst_sparse,quantum_state",
+        "slug_hint": "pipeline",
+        "threads": 64,
+        "iterations": 3,
+        "size_mib": 256
+      },
+      "results": [
+        {
+          "kernel": "wrf_stencil",
+          "seconds": 0.108542,
+          "bandwidth_gb_s": 58.1444,
+          "bytes": 6311116800,
+          "checksum": 731.526
+        },
+        {
+          "kernel": "gromacs_pairlist",
+          "seconds": 0.045498,
+          "bandwidth_gb_s": 106.199,
+          "bytes": 4831838208,
+          "checksum": 5698.58
+        },
+        {
+          "kernel": "sst_sparse",
+          "seconds": 0.466204,
+          "bandwidth_gb_s": 18.1374,
+          "bytes": 8455716864,
+          "checksum": 3456
+        },
+        {
+          "kernel": "quantum_state",
+          "seconds": 0.0446314,
+          "bandwidth_gb_s": 36.087,
+          "bytes": 1610612736,
+          "checksum": 1.41408
+        }
+      ]
+    }
+  }
+}

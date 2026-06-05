@@ -1,0 +1,9 @@
+20:00:27 [INFO] Running scx_p2dq (build ID: 1.0.21-gf90c2aa14 x86_64-unknown-linux-gnu/debug)
+20:00:27 [INFO] DSQ[0] slice_ns 100000
+20:00:27 [INFO] DSQ[1] slice_ns 3200000
+20:00:27 [INFO] DSQ[2] slice_ns 6400000
+20:00:28 [WARN] libbpf: map 'p2dq': BPF map skeleton link is uninitialized
+
+20:00:28 [INFO] P2DQ scheduler started! Run `scx_p2dq --monitor` for metrics.
+EXIT: unregistered from user space
+20:00:30 [INFO] Unregister scx_p2dq scheduler

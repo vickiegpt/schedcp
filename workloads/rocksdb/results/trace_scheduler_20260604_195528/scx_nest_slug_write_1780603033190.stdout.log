@@ -1,0 +1,144 @@
+
+
+Wakeup stats
+------------
+WAKEUP_ATTACHED=0
+WAKEUP_PREV_PRIMARY=0
+WAKEUP_FULLY_IDLE_PRIMARY=0
+WAKEUP_ANY_IDLE_PRIMARY=0
+WAKEUP_FULLY_IDLE_RESERVE=0
+WAKEUP_ANY_IDLE_RESERVE=0
+WAKEUP_IDLE_OTHER=0
+
+
+Nest stats
+----------
+TASK_IMPATIENT=0
+PROMOTED_TO_PRIMARY=0
+PROMOTED_TO_RESERVED=0
+DEMOTED_TO_RESERVED=0
+RESERVED_AT_CAPACITY=0
+SCHEDULED_COMPACTION=0
+CANCELLED_COMPACTION=0
+EAGERLY_COMPACTED=0
+CALLBACK_COMPACTED=0
+
+
+SLUG stats
+----------
+SLUG_NEST=0
+SLUG_BYPASS=2
+
+
+Consume stats
+-------------
+CONSUMED=0
+NOT_CONSUMED=47
+
+
+
+Masks
+-----
+PRIMARY  ( 0): | ------------------------------------------------ |
+RESERVED ( 0): | ------------------------------------------------ |
+OTHER    ( 0): | ------------------------------------------------ |
+IDLE     ( 0): | ------------------------------------------------ |
+
+
+
+
+
+Wakeup stats
+------------
+WAKEUP_ATTACHED=566
+WAKEUP_PREV_PRIMARY=32
+WAKEUP_FULLY_IDLE_PRIMARY=0
+WAKEUP_ANY_IDLE_PRIMARY=31
+WAKEUP_FULLY_IDLE_RESERVE=0
+WAKEUP_ANY_IDLE_RESERVE=25
+WAKEUP_IDLE_OTHER=47
+
+
+Nest stats
+----------
+TASK_IMPATIENT=21
+PROMOTED_TO_PRIMARY=37
+PROMOTED_TO_RESERVED=20
+DEMOTED_TO_RESERVED=10
+RESERVED_AT_CAPACITY=37
+SCHEDULED_COMPACTION=636
+CANCELLED_COMPACTION=629
+EAGERLY_COMPACTED=0
+CALLBACK_COMPACTED=32
+
+
+SLUG stats
+----------
+SLUG_NEST=701
+SLUG_BYPASS=2818
+
+
+Consume stats
+-------------
+CONSUMED=386
+NOT_CONSUMED=419382
+
+
+
+Masks
+-----
+PRIMARY  ( 0): | ------------------------------------------------ |
+RESERVED ( 5): | ---------------------------------*-*-**-*------- |
+OTHER    (43): | *********************************-*-*--*-******* |
+IDLE     (32): | ****************************---------------*-*** |
+
+
+
+
+
+Wakeup stats
+------------
+WAKEUP_ATTACHED=4220
+WAKEUP_PREV_PRIMARY=910
+WAKEUP_FULLY_IDLE_PRIMARY=0
+WAKEUP_ANY_IDLE_PRIMARY=429
+WAKEUP_FULLY_IDLE_RESERVE=0
+WAKEUP_ANY_IDLE_RESERVE=487
+WAKEUP_IDLE_OTHER=561
+
+
+Nest stats
+----------
+TASK_IMPATIENT=323
+PROMOTED_TO_PRIMARY=645
+PROMOTED_TO_RESERVED=276
+DEMOTED_TO_RESERVED=216
+RESERVED_AT_CAPACITY=556
+SCHEDULED_COMPACTION=5663
+CANCELLED_COMPACTION=5559
+EAGERLY_COMPACTED=0
+CALLBACK_COMPACTED=645
+
+
+SLUG stats
+----------
+SLUG_NEST=6607
+SLUG_BYPASS=5502
+
+
+Consume stats
+-------------
+CONSUMED=22477
+NOT_CONSUMED=18002967
+
+
+
+Masks
+-----
+PRIMARY  ( 0): | ------------------------------------------------ |
+RESERVED ( 5): | --------*--------*--*--------*-------------*---- |
+OTHER    (43): | ********-********-**-********-*************-**** |
+IDLE     (30): | ********-********-**--*--**-----**-----***--**** |
+
+
+

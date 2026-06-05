@@ -1,0 +1,122 @@
+{
+  "default": {
+    "scheduler": "default",
+    "error": "[Errno 2] No such file or directory: 'build/bin/llama-bench'",
+    "exit_code": -1
+  },
+  "scx_bpfland": {
+    "scheduler": "scx_bpfland",
+    "error": "Failed to start scheduler scx_bpfland: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_central": {
+    "scheduler": "scx_central",
+    "error": "Failed to start scheduler scx_central: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_chaos": {
+    "scheduler": "scx_chaos",
+    "error": "Failed to start scheduler scx_chaos: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_flash": {
+    "scheduler": "scx_flash",
+    "error": "Failed to start scheduler scx_flash: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_flatcg": {
+    "scheduler": "scx_flatcg",
+    "error": "Failed to start scheduler scx_flatcg: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_lavd": {
+    "scheduler": "scx_lavd",
+    "error": "Failed to start scheduler scx_lavd: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_layered": {
+    "scheduler": "scx_layered",
+    "error": "Failed to start scheduler scx_layered: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_mitosis": {
+    "scheduler": "scx_mitosis",
+    "error": "Failed to start scheduler scx_mitosis: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_nest": {
+    "scheduler": "scx_nest",
+    "error": "Failed to start scheduler scx_nest: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_nest_slug": {
+    "scheduler": "scx_nest_slug",
+    "error": "Failed to start scheduler scx_nest_slug: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_nest_slug_read": {
+    "scheduler": "scx_nest_slug_read",
+    "error": "Failed to start scheduler scx_nest_slug_read: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_nest_slug_write": {
+    "scheduler": "scx_nest_slug_write",
+    "error": "Failed to start scheduler scx_nest_slug_write: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_p2dq": {
+    "scheduler": "scx_p2dq",
+    "error": "Failed to start scheduler scx_p2dq: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_pair": {
+    "scheduler": "scx_pair",
+    "error": "Failed to start scheduler scx_pair: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_prev": {
+    "scheduler": "scx_prev",
+    "error": "Failed to start scheduler scx_prev: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_qmap": {
+    "scheduler": "scx_qmap",
+    "error": "Failed to start scheduler scx_qmap: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_rlfifo": {
+    "scheduler": "scx_rlfifo",
+    "error": "Failed to start scheduler scx_rlfifo: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_rustland": {
+    "scheduler": "scx_rustland",
+    "error": "Failed to start scheduler scx_rustland: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_rusty": {
+    "scheduler": "scx_rusty",
+    "error": "Failed to start scheduler scx_rusty: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_sdt": {
+    "scheduler": "scx_sdt",
+    "error": "Failed to start scheduler scx_sdt: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_simple": {
+    "scheduler": "scx_simple",
+    "error": "Failed to start scheduler scx_simple: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_tickless": {
+    "scheduler": "scx_tickless",
+    "error": "Failed to start scheduler scx_tickless: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  },
+  "scx_userland": {
+    "scheduler": "scx_userland",
+    "error": "Failed to start scheduler scx_userland: Scheduler failed to start: sudo: The \"no new privileges\" flag is set, which prevents sudo from running as root.\nsudo: If sudo is running in a container, you may need to adjust the container configuration to disable the flag.\n",
+    "exit_code": -1
+  }
+}

@@ -1,0 +1,5 @@
+trace,scheduler,rep,query,transactions,seconds,tps,avg_micros,read_ops_per_tx,write_ops_per_tx,errors,wall_seconds
+payment,default,1,payment,10000,0.0264518,378046.0,2.64518,3.0,3.0,0,0.08874273300170898
+payment,scx_prev,1,payment,10000,0.0206874,483387.0,2.06874,3.0,3.0,0,0.14262723922729492
+payment,scx_p2dq,1,payment,10000,0.0205709,486123.0,2.05709,3.0,3.0,0,0.5492169857025146
+payment,scx_rusty,1,payment,10000,0.0273366,365810.0,2.73366,3.0,3.0,0,0.19924592971801758

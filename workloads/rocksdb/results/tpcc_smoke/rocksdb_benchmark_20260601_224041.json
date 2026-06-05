@@ -1,0 +1,78 @@
+{
+  "default": {
+    "test_name": "tpcc_query",
+    "command": "/root/schedcp/workloads/rocksdb/tpcc_query_bench --db=/tmp/rocksdb_tpcc --query=all --transactions=100 --threads=2 --warehouses=1 --districts=2 --customers=50 --items=200",
+    "stdout": "CreateIOUring failed: Operation not permitted (errno=1), thread=129480900288256\n{\n  \"config\": {\n    \"db\": \"/tmp/rocksdb_tpcc\",\n    \"query\": \"all\",\n    \"warehouses\": 1,\n    \"districts\": 2,\n    \"customers\": 50,\n    \"items\": 200,\n    \"transactions\": 100,\n    \"threads\": 2,\n    \"order_lines\": 5,\n    \"value_size\": 128\n  },\n  \"results\": [\n    {\"query\": \"new_order\", \"transactions\": 100, \"seconds\": 0.00138517, \"tps\": 72193.5, \"avg_micros\": 13.8517, \"read_ops_per_tx\": 13, \"write_ops_per_tx\": 12, \"errors\": 0},\n    {\"query\": \"payment\", \"transactions\": 100, \"seconds\": 0.000534527, \"tps\": 187081, \"avg_micros\": 5.34527, \"read_ops_per_tx\": 3, \"write_ops_per_tx\": 3, \"errors\": 0},\n    {\"query\": \"order_status\", \"transactions\": 100, \"seconds\": 0.000198413, \"tps\": 503999, \"avg_micros\": 1.98413, \"read_ops_per_tx\": 7, \"write_ops_per_tx\": 0, \"errors\": 0},\n    {\"query\": \"delivery\", \"transactions\": 100, \"seconds\": 0.000519513, \"tps\": 192488, \"avg_micros\": 5.19513, \"read_ops_per_tx\": 3, \"write_ops_per_tx\": 3, \"errors\": 0},\n    {\"query\": \"stock_level\", \"transactions\": 100, \"seconds\": 0.000642992, \"tps\": 155523, \"avg_micros\": 6.42992, \"read_ops_per_tx\": 33, \"write_ops_per_tx\": 0, \"errors\": 0}\n  ]\n}\n",
+    "stderr": "",
+    "return_code": 0,
+    "scheduler": "default",
+    "duration": 0.013453245162963867,
+    "timestamp": "2026-06-01T22:40:41.396115",
+    "tpcc": {
+      "config": {
+        "db": "/tmp/rocksdb_tpcc",
+        "query": "all",
+        "warehouses": 1,
+        "districts": 2,
+        "customers": 50,
+        "items": 200,
+        "transactions": 100,
+        "threads": 2,
+        "order_lines": 5,
+        "value_size": 128
+      },
+      "results": [
+        {
+          "query": "new_order",
+          "transactions": 100,
+          "seconds": 0.00138517,
+          "tps": 72193.5,
+          "avg_micros": 13.8517,
+          "read_ops_per_tx": 13,
+          "write_ops_per_tx": 12,
+          "errors": 0
+        },
+        {
+          "query": "payment",
+          "transactions": 100,
+          "seconds": 0.000534527,
+          "tps": 187081,
+          "avg_micros": 5.34527,
+          "read_ops_per_tx": 3,
+          "write_ops_per_tx": 3,
+          "errors": 0
+        },
+        {
+          "query": "order_status",
+          "transactions": 100,
+          "seconds": 0.000198413,
+          "tps": 503999,
+          "avg_micros": 1.98413,
+          "read_ops_per_tx": 7,
+          "write_ops_per_tx": 0,
+          "errors": 0
+        },
+        {
+          "query": "delivery",
+          "transactions": 100,
+          "seconds": 0.000519513,
+          "tps": 192488,
+          "avg_micros": 5.19513,
+          "read_ops_per_tx": 3,
+          "write_ops_per_tx": 3,
+          "errors": 0
+        },
+        {
+          "query": "stock_level",
+          "transactions": 100,
+          "seconds": 0.000642992,
+          "tps": 155523,
+          "avg_micros": 6.42992,
+          "read_ops_per_tx": 33,
+          "write_ops_per_tx": 0,
+          "errors": 0
+        }
+      ]
+    }
+  }
+}

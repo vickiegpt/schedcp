@@ -1,0 +1,198 @@
+[
+  {
+    "trace": "payment",
+    "scheduler": "default",
+    "rep": 1,
+    "command": [
+      "/root/schedcp/workloads/rocksdb/tpcc_query_bench",
+      "--db=/tmp/rocksdb_trace_scheduler/payment_default_rep1",
+      "--query=payment",
+      "--transactions=10000",
+      "--threads=4",
+      "--warehouses=4",
+      "--districts=8",
+      "--customers=1000",
+      "--items=10000",
+      "--order-lines=5",
+      "--value-size=128"
+    ],
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"db\": \"/tmp/rocksdb_trace_scheduler/payment_default_rep1\",\n    \"query\": \"payment\",\n    \"warehouses\": 4,\n    \"districts\": 8,\n    \"customers\": 1000,\n    \"items\": 10000,\n    \"transactions\": 10000,\n    \"threads\": 4,\n    \"order_lines\": 5,\n    \"value_size\": 128\n  },\n  \"results\": [\n    {\"query\": \"payment\", \"transactions\": 10000, \"seconds\": 0.0264518, \"tps\": 378046, \"avg_micros\": 2.64518, \"read_ops_per_tx\": 3, \"write_ops_per_tx\": 3, \"errors\": 0}\n  ]\n}\n",
+    "stderr": "",
+    "wall_seconds": 0.08874273300170898,
+    "timestamp": "2026-06-04T20:00:24.612834",
+    "parsed": {
+      "config": {
+        "db": "/tmp/rocksdb_trace_scheduler/payment_default_rep1",
+        "query": "payment",
+        "warehouses": 4,
+        "districts": 8,
+        "customers": 1000,
+        "items": 10000,
+        "transactions": 10000,
+        "threads": 4,
+        "order_lines": 5,
+        "value_size": 128
+      },
+      "results": [
+        {
+          "query": "payment",
+          "transactions": 10000,
+          "seconds": 0.0264518,
+          "tps": 378046,
+          "avg_micros": 2.64518,
+          "read_ops_per_tx": 3,
+          "write_ops_per_tx": 3,
+          "errors": 0
+        }
+      ]
+    }
+  },
+  {
+    "trace": "payment",
+    "scheduler": "scx_prev",
+    "rep": 1,
+    "command": [
+      "/root/schedcp/workloads/rocksdb/tpcc_query_bench",
+      "--db=/tmp/rocksdb_trace_scheduler/payment_scx_prev_rep1",
+      "--query=payment",
+      "--transactions=10000",
+      "--threads=4",
+      "--warehouses=4",
+      "--districts=8",
+      "--customers=1000",
+      "--items=10000",
+      "--order-lines=5",
+      "--value-size=128"
+    ],
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"db\": \"/tmp/rocksdb_trace_scheduler/payment_scx_prev_rep1\",\n    \"query\": \"payment\",\n    \"warehouses\": 4,\n    \"districts\": 8,\n    \"customers\": 1000,\n    \"items\": 10000,\n    \"transactions\": 10000,\n    \"threads\": 4,\n    \"order_lines\": 5,\n    \"value_size\": 128\n  },\n  \"results\": [\n    {\"query\": \"payment\", \"transactions\": 10000, \"seconds\": 0.0206874, \"tps\": 483387, \"avg_micros\": 2.06874, \"read_ops_per_tx\": 3, \"write_ops_per_tx\": 3, \"errors\": 0}\n  ]\n}\n",
+    "stderr": "",
+    "wall_seconds": 0.14262723922729492,
+    "timestamp": "2026-06-04T20:00:27.258339",
+    "parsed": {
+      "config": {
+        "db": "/tmp/rocksdb_trace_scheduler/payment_scx_prev_rep1",
+        "query": "payment",
+        "warehouses": 4,
+        "districts": 8,
+        "customers": 1000,
+        "items": 10000,
+        "transactions": 10000,
+        "threads": 4,
+        "order_lines": 5,
+        "value_size": 128
+      },
+      "results": [
+        {
+          "query": "payment",
+          "transactions": 10000,
+          "seconds": 0.0206874,
+          "tps": 483387,
+          "avg_micros": 2.06874,
+          "read_ops_per_tx": 3,
+          "write_ops_per_tx": 3,
+          "errors": 0
+        }
+      ]
+    }
+  },
+  {
+    "trace": "payment",
+    "scheduler": "scx_p2dq",
+    "rep": 1,
+    "command": [
+      "/root/schedcp/workloads/rocksdb/tpcc_query_bench",
+      "--db=/tmp/rocksdb_trace_scheduler/payment_scx_p2dq_rep1",
+      "--query=payment",
+      "--transactions=10000",
+      "--threads=4",
+      "--warehouses=4",
+      "--districts=8",
+      "--customers=1000",
+      "--items=10000",
+      "--order-lines=5",
+      "--value-size=128"
+    ],
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"db\": \"/tmp/rocksdb_trace_scheduler/payment_scx_p2dq_rep1\",\n    \"query\": \"payment\",\n    \"warehouses\": 4,\n    \"districts\": 8,\n    \"customers\": 1000,\n    \"items\": 10000,\n    \"transactions\": 10000,\n    \"threads\": 4,\n    \"order_lines\": 5,\n    \"value_size\": 128\n  },\n  \"results\": [\n    {\"query\": \"payment\", \"transactions\": 10000, \"seconds\": 0.0205709, \"tps\": 486123, \"avg_micros\": 2.05709, \"read_ops_per_tx\": 3, \"write_ops_per_tx\": 3, \"errors\": 0}\n  ]\n}\n",
+    "stderr": "",
+    "wall_seconds": 0.5492169857025146,
+    "timestamp": "2026-06-04T20:00:30.396147",
+    "parsed": {
+      "config": {
+        "db": "/tmp/rocksdb_trace_scheduler/payment_scx_p2dq_rep1",
+        "query": "payment",
+        "warehouses": 4,
+        "districts": 8,
+        "customers": 1000,
+        "items": 10000,
+        "transactions": 10000,
+        "threads": 4,
+        "order_lines": 5,
+        "value_size": 128
+      },
+      "results": [
+        {
+          "query": "payment",
+          "transactions": 10000,
+          "seconds": 0.0205709,
+          "tps": 486123,
+          "avg_micros": 2.05709,
+          "read_ops_per_tx": 3,
+          "write_ops_per_tx": 3,
+          "errors": 0
+        }
+      ]
+    }
+  },
+  {
+    "trace": "payment",
+    "scheduler": "scx_rusty",
+    "rep": 1,
+    "command": [
+      "/root/schedcp/workloads/rocksdb/tpcc_query_bench",
+      "--db=/tmp/rocksdb_trace_scheduler/payment_scx_rusty_rep1",
+      "--query=payment",
+      "--transactions=10000",
+      "--threads=4",
+      "--warehouses=4",
+      "--districts=8",
+      "--customers=1000",
+      "--items=10000",
+      "--order-lines=5",
+      "--value-size=128"
+    ],
+    "return_code": 0,
+    "stdout": "{\n  \"config\": {\n    \"db\": \"/tmp/rocksdb_trace_scheduler/payment_scx_rusty_rep1\",\n    \"query\": \"payment\",\n    \"warehouses\": 4,\n    \"districts\": 8,\n    \"customers\": 1000,\n    \"items\": 10000,\n    \"transactions\": 10000,\n    \"threads\": 4,\n    \"order_lines\": 5,\n    \"value_size\": 128\n  },\n  \"results\": [\n    {\"query\": \"payment\", \"transactions\": 10000, \"seconds\": 0.0273366, \"tps\": 365810, \"avg_micros\": 2.73366, \"read_ops_per_tx\": 3, \"write_ops_per_tx\": 3, \"errors\": 0}\n  ]\n}\n",
+    "stderr": "",
+    "wall_seconds": 0.19924592971801758,
+    "timestamp": "2026-06-04T20:00:33.184209",
+    "parsed": {
+      "config": {
+        "db": "/tmp/rocksdb_trace_scheduler/payment_scx_rusty_rep1",
+        "query": "payment",
+        "warehouses": 4,
+        "districts": 8,
+        "customers": 1000,
+        "items": 10000,
+        "transactions": 10000,
+        "threads": 4,
+        "order_lines": 5,
+        "value_size": 128
+      },
+      "results": [
+        {
+          "query": "payment",
+          "transactions": 10000,
+          "seconds": 0.0273366,
+          "tps": 365810,
+          "avg_micros": 2.73366,
+          "read_ops_per_tx": 3,
+          "write_ops_per_tx": 3,
+          "errors": 0
+        }
+      ]
+    }
+  }
+]

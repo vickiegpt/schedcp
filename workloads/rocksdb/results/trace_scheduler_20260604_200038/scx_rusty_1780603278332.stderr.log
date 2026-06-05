@@ -1,0 +1,11 @@
+20:01:18 [INFO] Running scx_rusty (build ID: 1.0.16-gf90c2aa14 x86_64-unknown-linux-gnu/debug)
+20:01:18 [INFO] NODE[00] mask= ffff,ffffffff
+20:01:18 [INFO]  DOM[00] mask= 0000,3f00003f
+20:01:18 [INFO]  DOM[01] mask= 000f,c0000fc0
+20:01:18 [INFO]  DOM[02] mask= 03f0,0003f000
+20:01:18 [INFO]  DOM[03] mask= fc00,00fc0000
+20:01:18 [WARN] libbpf: map 'rusty': BPF map skeleton link is uninitialized
+
+20:01:18 [INFO] Rusty scheduler started! Run `scx_rusty --monitor` for metrics.
+EXIT: unregistered from user space
+20:01:20 [INFO] Unregister scx_rusty scheduler
